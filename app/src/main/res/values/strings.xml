@@ -1,4 +1,22 @@
 <resources>
     <string name="app_name">IMHi</string>
     <string name="title_activity_git">GitActivity</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">手机号码</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_reg_in_short">Reg in</string>
+    <string name="error_invalid_mobile">请输入正确的手机号码</string>
+    <string name="error_invalid_password">密码为6-20位的数字和字母的组合</string>
+    <string name="error_incorrect_password">密码不正确</string>
+    <string name="error_field_required">此处不能为空</string>
+    <string name="error_sms_error">请输入正确的验证码</string>
+    <string name="key_value">0e7842b4a51f98d19c2332240c67e17d</string>
+    <string name="imHi">【imHi聊】您的验证码是</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 </resources>
