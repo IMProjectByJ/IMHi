@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,14 +30,25 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.Authenticator;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.AccountValidatorUtil;
+import com.example.star.imhi.Utils.MD5Util;
+import com.google.gson.Gson;
 
-import org.w3c.dom.Text;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -109,7 +121,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
         tforgetPasswdView = findViewById(R.id.forgetPassword);
         tRegView = findViewById(R.id.regBySms);
-
+// 跳转到注册界面
         tRegView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,7 +130,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
     }
-
+// 获取权限
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
@@ -179,7 +191,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Store values at the time of the login attempt.
         String Mobile = mMobileView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        final String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -207,11 +219,62 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(Mobile, password);
-            mAuthTask.execute((Void) null);
+
+            //加密
+            final String md5password = MD5Util.encrypt(mPasswordView.getText().toString());
+            Log.e("md5passwd",md5password);
+            String strMobile = mMobileView.getText().toString();
+            final OkHttpClient okHttpClient = new OkHttpClient().newBuilder().build();
+            final Request request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/"+Mobile+"/"+md5password).build();
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+
+                     User user=null;
+                     if(response.isSuccessful())
+                     {
+                         String strJson = response.body().string();
+                         if (strJson != null) {
+                             // 用户不正确
+                             Gson gson = new Gson();
+                             user = gson.fromJson(strJson, User.class);
+                         }
+                         
+                     }
+
+                     final User finalUser = user;
+                     runOnUiThread(new Runnable() {
+                         @Override
+                         public void run() {
+                             if (finalUser!=null && finalUser.getUserId()!=null) {
+                                 Toast.makeText(getApplicationContext(), "你好 " + finalUser.getNikname(), Toast.LENGTH_SHORT).show();
+                                 Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
+                                 Intent intent = new Intent(LoginActivity.this, SuccessActivity.class);
+                                 intent.putExtra("loginUser",new Gson().toJson(finalUser));
+                                 startActivity(intent);
+                                 finish();
+                             }
+                             else if (finalUser==null) {
+                                 // 用户不存在
+                                 mMobileView.requestFocus();
+                                 mMobileView.setError("用户不存在");
+                             }
+                             else
+                             {// 密码错误
+                                 mPasswordView.requestFocus();
+                                 mPasswordView.setError("密码错误");
+                             }
+                         }
+                     });
+                }
+            });
+
+
         }
     }
 
@@ -363,6 +426,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
+
         }
 
         @Override
@@ -371,5 +435,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
         }
     }
+
 }
 

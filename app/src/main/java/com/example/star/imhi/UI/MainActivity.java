@@ -23,9 +23,11 @@ public class MainActivity extends AppCompatActivity {
             public void run()
             {
                 startActivity(intent);
+                finish();
             }
         };
         timer.schedule(task,1000*3);
+
     }
     public void sendMessage(View view)
     {
