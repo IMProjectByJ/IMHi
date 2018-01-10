@@ -3,7 +3,9 @@ package com.example.star.imhi.UI;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -44,6 +46,9 @@ import com.example.star.imhi.Utils.MD5Util;
 import com.google.gson.Gson;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -72,7 +77,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
+            "18020536089:liuyunxing", "13260905153:liuyunxing"
     };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -225,7 +230,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             Log.e("md5passwd",md5password);
             String strMobile = mMobileView.getText().toString();
             final OkHttpClient okHttpClient = new OkHttpClient().newBuilder().build();
-            final Request request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/"+Mobile+"/"+md5password).build();
+            Request request;
+           if (Mobile.length() == 11)
+                  request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/"+Mobile+"/"+md5password).build();
+           else
+               request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/id/"+Mobile+"/"+md5password).build();
             okHttpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -233,54 +242,76 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) throws IOException { // 获取返回值
 
-                     User user=null;
-                     if(response.isSuccessful())
-                     {
-                         String strJson = response.body().string();
-                         if (strJson != null) {
-                             // 用户不正确
-                             Gson gson = new Gson();
-                             user = gson.fromJson(strJson, User.class);
-                         }
-                         
-                     }
+                    User user = null;
+                    if (response.isSuccessful()) {
+                        String strJson = response.body().string();
+                        if (strJson != null) {
+                            // 用户不正确
 
-                     final User finalUser = user;
-                     runOnUiThread(new Runnable() {
-                         @Override
-                         public void run() {
-                             if (finalUser!=null && finalUser.getUserId()!=null) {
-                                 Toast.makeText(getApplicationContext(), "你好 " + finalUser.getNikname(), Toast.LENGTH_SHORT).show();
-                                 Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
-                                 Intent intent = new Intent(LoginActivity.this, SuccessActivity.class);
-                                 intent.putExtra("loginUser",new Gson().toJson(finalUser));
-                                 startActivity(intent);
-                                 finish();
-                             }
-                             else if (finalUser==null) {
-                                 // 用户不存在
-                                 mMobileView.requestFocus();
-                                 mMobileView.setError("用户不存在");
-                             }
-                             else
-                             {// 密码错误
-                                 mPasswordView.requestFocus();
-                                 mPasswordView.setError("密码错误");
-                             }
-                         }
-                     });
+                            try {
+                                JSONObject jsonObject = new JSONObject(strJson);
+                                if (jsonObject.optString("err") != "") {
+                                    if (jsonObject.get("err").equals("账户不存在")) {
+                                        user = null;
+                                    }
+
+
+                                    if (jsonObject.optString("err") != "" && jsonObject.get("err").equals("密码错误"))
+                                    {
+                                        user = new User();
+                                    }
+                                } else {
+                                    Gson gson = new Gson();
+                                    user = gson.fromJson(strJson, User.class);
+                                    SharedPreferences share = getSharedPreferences("userInfo", Activity.MODE_WORLD_READABLE);// 私有方式获取
+                                    SharedPreferences.Editor edit = share.edit();
+                                    edit.putString("userId", user.getUserId() + "");
+                                    edit.putString("userPassword", user.getUserPassword()); // 用户密码
+                                    edit.commit();
+                                    // 作为token认证
+
+                                }
+                            } catch (Exception e) {
+
+                            }
+                        }
+
+
+                    }
+
+                    final User finalUser = user;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (finalUser != null && finalUser.getUserId() != null) {
+                                Toast.makeText(getApplicationContext(), "你好 " + finalUser.getNikname(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(LoginActivity.this, SuccessActivity.class);
+                                intent.putExtra("loginUser", new Gson().toJson(finalUser));
+                                startActivity(intent);
+                                finish();
+                            } else if (finalUser == null) {
+                                // 用户不存在
+                                mMobileView.requestFocus();
+                                mMobileView.setError("用户不存在");
+                            } else {// 密码错误
+                                mPasswordView.requestFocus();
+                                mPasswordView.setError("密码错误");
+                            }
+                        }
+                    });
+
+
                 }
             });
-
-
         }
     }
 
     private boolean isMobileValid(String mobile) {
         //TODO: Replace this with your own logic
-        return AccountValidatorUtil.isMobile(mobile);
+        return AccountValidatorUtil.isMobile(mobile) || (mobile.length()>=0 && mobile.length()<=7);
     }
 
     private boolean isPasswordValid(String password) {
@@ -418,7 +449,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+            showProgress(true);
 
             if (success) {
                 finish();
@@ -432,7 +463,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onCancelled() {
             mAuthTask = null;
-            showProgress(false);
+            showProgress(true);
         }
     }
 

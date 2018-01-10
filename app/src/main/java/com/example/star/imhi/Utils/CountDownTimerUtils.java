@@ -17,16 +17,23 @@ import com.example.star.imhi.R;
 public class CountDownTimerUtils extends CountDownTimer {
 
     private TextView  setView;
-    public CountDownTimerUtils(View view ,long millisInFuture, long countDownInterval) {
+    String  info;
+    String  toChangInfo;
+    public CountDownTimerUtils(View view ,long millisInFuture, long countDownInterval,String info,String toChangInfo) {
         super(millisInFuture, countDownInterval);
         this.setView = (TextView)view;
+        this.info = info;
+        this.toChangInfo = toChangInfo;
     }
 
     @Override
     public void onTick(long l) {
 
         setView.setClickable(false);
-        setView.setText(l/ 1000 +"s");
+        if (info == null)
+            setView.setText(l/ 1000 +"s");
+        else
+            setView.setText(info);
         // 设置按钮背景颜色
        // setView.setBackgroundColor(Color.GRAY);
 
@@ -47,7 +54,7 @@ public class CountDownTimerUtils extends CountDownTimer {
     @Override
     public void onFinish() {
 
-        setView.setText("重新获取验证码");
+        setView.setText(toChangInfo);
         setView.setClickable(true);//重新获得点击
         //mTextView.setBackgroundResource(R.drawable.bg_identify_code_normal);  //还原背景色
 
