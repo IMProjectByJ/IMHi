@@ -34,8 +34,13 @@
             android:label="@string/title_activity_login" />
         <activity android:name=".UI.RegisterActivity" />
         <activity android:name=".UI.SuccessActivity" />
-
+        <activity
+            android:name=".UI.DetailsActivity"
+            android:label="详细资料"
+            android:logo="@drawable/left" />
+        <activity android:name=".UI.MoreActivity" />
+        <activity android:name=".UI.RemarksActivity" />
+        <activity android:name=".UI.AddFriendActivity"></activity>
     </application>
-
 
 </manifest>

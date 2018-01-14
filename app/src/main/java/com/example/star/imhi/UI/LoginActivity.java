@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -93,10 +94,56 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private  TextView tRegView;
 
 
+    Button btn_click;
+
+    //增加的方法：用于查询详细信息
+    public void requestServert(final Integer userId){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                User user = null;
+                OkHttpClient client = new OkHttpClient();
+                Request request = new Request.Builder().url("http://172.20.10.10:8080/api/user/details/" + userId).build();
+                try {
+                    Response response = client.newCall(request).execute();
+                    String responseData = response.body().string();
+                    Log.e("responseData:", responseData);
+                    JSONObject jsonObject = new JSONObject(responseData);
+
+                    if (jsonObject.optString("err") == "") {
+                        Gson gson  = new Gson();
+                        user = gson.fromJson(jsonObject.getString("details"),User.class);
+                        Intent intent = new Intent(LoginActivity.this, DetailsActivity.class);
+                        intent.putExtra("user", new Gson().toJson(user));
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(LoginActivity.this, DetailsActivity.class);
+                        intent.putExtra("user", new Gson().toJson(user));
+                        startActivity(intent);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        btn_click = (Button)findViewById(R.id.btn_click);
+        btn_click.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                requestServert(10000);
+            }
+        });
+
         // Set up the login form.
         mMobileView = (AutoCompleteTextView) findViewById(R.id.mobile);
         populateAutoComplete();
@@ -256,7 +303,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     if (jsonObject.get("err").equals("账户不存在")) {
                                         user = null;
                                     }
-
 
                                     if (jsonObject.optString("err") != "" && jsonObject.get("err").equals("密码错误"))
                                     {
