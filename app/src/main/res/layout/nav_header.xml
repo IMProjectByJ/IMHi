@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="500dp">
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/head_image"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/head_image"
+        android:layout_centerInParent="true"/>
+    <TextView
+        android:id="@+id/user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="用户名"
+        android:layout_below="@id/head_image"/>
+    <TextView
+        android:id="@+id/emil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user"
+        android:text="1111111111@qq.com"/>
+    <LinearLayout
+        android:id="@+id/name"
+        android:layout_below="@+id/email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/hello"
+            android:clickable="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="姓名"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="111"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

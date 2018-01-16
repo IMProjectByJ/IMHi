@@ -4,9 +4,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -37,15 +39,27 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.example.star.imhi.DAO.pojo.User;
+import com.example.star.imhi.MyApplication;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.AccountValidatorUtil;
 import com.example.star.imhi.Utils.MD5Util;
+import com.example.star.imhi.activity.StartActivity;
+import com.example.star.imhi.database.MyDatabaseHelper;
+import com.example.star.imhi.mina.MyService;
+import com.example.star.imhi.mina.Protocol;
+import com.facebook.stetho.Stetho;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 
+import net.sf.json.JSON;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -90,8 +104,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
     private TextView tforgetPasswdView;
-    private  TextView tRegView;
+    private TextView tRegView;
 
+    //yuyisummer private  MyDatabaseHelper dbHelper;
+    private  MyDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +136,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-
-
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         tforgetPasswdView = findViewById(R.id.forgetPassword);
@@ -130,12 +144,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         tRegView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(LoginActivity.this,RegisterActivity.class);
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
             }
         });
+
+        //yuyisummer 1.15创建数据库操作，测试
+        dbHelper = new MyDatabaseHelper(this,"FriendsStore.db",null,1);
+        dbHelper.getWritableDatabase();
+        //yuyisummer 1.16创建Stetho
+        sqlinit();
+
     }
-// 获取权限
+
+    // 获取权限
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
@@ -178,7 +200,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         }
     }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -227,14 +248,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             //加密
             final String md5password = MD5Util.encrypt(mPasswordView.getText().toString());
-            Log.e("md5passwd",md5password);
+            Log.e("md5passwd", md5password);
             String strMobile = mMobileView.getText().toString();
             final OkHttpClient okHttpClient = new OkHttpClient().newBuilder().build();
             Request request;
-           if (Mobile.length() == 11)
-                  request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/"+Mobile+"/"+md5password).build();
-           else
-               request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/id/"+Mobile+"/"+md5password).build();
+            if (Mobile.length() == 11)
+                request = new Request.Builder().get().url(getString(R.string.postUrl) + "api/user/" + Mobile + "/" + md5password).build();
+            else
+                request = new Request.Builder().get().url(getString(R.string.postUrl) + "api/user/id/" + Mobile + "/" + md5password).build();
             okHttpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -257,9 +278,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                         user = null;
                                     }
 
-
-                                    if (jsonObject.optString("err") != "" && jsonObject.get("err").equals("密码错误"))
-                                    {
+                                    if (jsonObject.optString("err") != "" && jsonObject.get("err").equals("密码错误")) {
                                         user = new User();
                                     }
                                 } else {
@@ -278,7 +297,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             }
                         }
 
-
                     }
 
                     final User finalUser = user;
@@ -286,10 +304,92 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         @Override
                         public void run() {
                             if (finalUser != null && finalUser.getUserId() != null) {
-                                Toast.makeText(getApplicationContext(), "你好 " + finalUser.getNikname(), Toast.LENGTH_SHORT).show();
-                                Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(LoginActivity.this, SuccessActivity.class);
-                                intent.putExtra("loginUser", new Gson().toJson(finalUser));
+                                //  Toast.makeText(getApplicationContext(), "你好 " + finalUser.getNikname(), Toast.LENGTH_SHORT).show();
+                                // Toast.makeText(getApplicationContext(), "登录成功！", Toast.LENGTH_SHORT).show();
+                                // Intent intent = new Intent(LoginActivity.this, HomepageActivity.class);
+
+                                //yuyiummser 2018.1.15
+
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        OkHttpClient client = new OkHttpClient();
+                                        String user_id = "10001";
+                                        Request request;
+                                        request = new Request.Builder().url(getString(R.string.postUrl)+"api/user/find_friend_list/" + user_id).build();
+                                        try {
+                                            Response response = client.newCall(request).execute();
+                                            String responseData = response.body().string();
+                                            JSONObject json = new JSONObject(responseData);
+                                            String user_str = json.getString("retval");
+                                            System.out.println(user_str);
+
+//                                            Protocol protocol = gson.fromJson(message.toString(), Protocol.class);
+//                                            Map<String,Integer> content = (Map<String, Integer>) protocol.getTextcontent();
+//                                              yuyisummer 测试直接转换json->list
+                                            //Gson gson = new Gson();
+                                           // List<User> list =  new ArrayList<User>();
+                                            //JSONArray jsonArray = JSONArray.
+
+                                            SQLiteDatabase db = dbHelper.getWritableDatabase();
+                                            JSONArray arr = new JSONArray(user_str);
+                                            for(int i = 0 ;i<arr.length();i++){
+                                                JSONObject temp = (JSONObject) arr.get(i);
+                                                int userid = temp.getInt("userId");
+                                                 String phone_num = temp.getString("phoneNum");
+                                                 String nikname = temp.getString("nikname");
+                                                System.out.println(userid+" "+phone_num+" "+nikname+" ");
+                                                //进行数据库个人简单信息的插入
+                                                ContentValues values = new ContentValues();
+                                                values.put("user_id",userid);
+                                                values.put("phone_num",phone_num);
+                                                values.put("nikname",nikname);
+                                              if( db.query("Friends",null,"user_id=?", new String[]{user_id},null,null,null) == null)
+                                              {
+                                                  values.put("user_id",userid);
+                                                  db.insert("Friends",null,values);
+                                              } else {
+                                                  db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
+                                              }
+
+
+                                            }
+                                           // Log.e("LoginActivity",list.toString());
+
+                                            //这里应该做一步
+                                            Log.e("LoginAcitivty", responseData);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }).start();
+
+
+
+
+
+
+
+
+
+
+
+                                Intent intent = new Intent(LoginActivity.this, StartActivity.class);
+                                //  intent.putExtra("loginUser", new Gson().toJson(finalUser));
+                                intent.putExtra("loginUser", String.valueOf(finalUser.getUserId()));
+                                //传入登录时间，最简单的一种
+                                // Date dt = new Date();
+                                //  intent.putExtra("login_date",dt.toLocaleString());
+                                //传入token，测试
+                                intent.putExtra("token", "假装有");
+                                //进行socket通信
+                                /*
+                                Intent in = new Intent(LoginActivity.this, MyService.class);
+                                Log.e("LoginActivity", "进行MyService");
+                                startService(in);
+                                */
                                 startActivity(intent);
                                 finish();
                             } else if (finalUser == null) {
@@ -303,7 +403,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         }
                     });
 
-
                 }
             });
         }
@@ -311,7 +410,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isMobileValid(String mobile) {
         //TODO: Replace this with your own logic
-        return AccountValidatorUtil.isMobile(mobile) || (mobile.length()>=0 && mobile.length()<=7);
+        return AccountValidatorUtil.isMobile(mobile) || (mobile.length() >= 0 && mobile.length() <= 7);
     }
 
     private boolean isPasswordValid(String password) {
@@ -398,7 +497,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mMobileView.setAdapter(adapter);
     }
 
-
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Phone.NUMBER,
@@ -466,6 +564,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
         }
     }
-
+    //yuyisummer 1.16测试数据库查看
+    private void sqlinit(){
+        Stetho.initializeWithDefaults(this);
+        new OkHttpClient.Builder()
+                .addNetworkInterceptor(new StethoInterceptor())
+                .build();
+    }
 }
 
