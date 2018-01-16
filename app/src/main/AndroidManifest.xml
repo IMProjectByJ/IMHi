@@ -40,7 +40,9 @@
             android:logo="@drawable/left" />
         <activity android:name=".UI.MoreActivity" />
         <activity android:name=".UI.RemarksActivity" />
-        <activity android:name=".UI.AddFriendActivity"></activity>
+        <activity android:name=".UI.AddFriendActivity" />
+        <activity android:name=".UI.MessageActivity" />
+        <activity android:name=".UI.ModifyActivity"></activity>
     </application>
 
 </manifest>

@@ -15,6 +15,7 @@
         android:background="#FFFFFF">
 
         <ImageView
+            android:id="@+id/search_image"
             android:layout_marginLeft="25dp"
             android:layout_width="20dp"
             android:layout_height="20dp"
@@ -57,11 +58,27 @@
         <TextView
             android:id="@+id/search_person"
             android:layout_marginLeft="12dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="钟山"
             android:textSize="18dp"
             android:layout_gravity="center"
             android:textColor="#000000"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:id="@+id/details"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="详情"/>
+        </RelativeLayout>
     </LinearLayout>
+
+    <Button
+        android:id="@+id/friend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="好友"/>
 </LinearLayout>

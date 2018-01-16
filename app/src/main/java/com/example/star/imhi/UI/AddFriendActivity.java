@@ -18,16 +18,22 @@ import android.widget.TextView;
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,84 +41,115 @@ import okhttp3.Response;
 public class AddFriendActivity extends AppCompatActivity {
     User user = null;
     EditText editText;
+    ImageView imageView;
+    Button btn_details;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_friend);
-        setActionBar();
 
         editText = (EditText) findViewById(R.id.search_msg);
-        setOnEditorActionListener(editText);
-        setSearchMessage();
+        final String aimPhoneNumber = editText.getText().toString();
+
+        imageView = (ImageView) findViewById(R.id.search_image);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                requestServert();
+            }
+        });
+
+        btn_details = (Button) findViewById(R.id.details);
+        btn_details.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if (user != null) {
+                    Intent intent = new Intent(AddFriendActivity.this, DetailsActivity.class);
+                    intent.putExtra("user", new Gson().toJson(user));
+                    startActivity(intent);
+                }
+            }
+        });
+
+        List<User> list = new ArrayList<>();
+        Friend_list(10000, list);
+
+    }
+
+    public void Friend_list(final int userId, final List<User> list_user){
+        //好友列表功能：测试
+        Button btn_friend = (Button) findViewById(R.id.friend);
+        btn_friend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        OkHttpClient client = new OkHttpClient();
+                        Request request = new Request.Builder().url("http://172.20.10.10:8080/api/user/friend_list/" + userId).build();
+                        try {
+                            Response response = client.newCall(request).execute();
+                            String responseData = response.body().string();
+                            Log.e("responseData:", responseData);
+                            JSONObject jsonObject = new JSONObject(responseData);
+
+                            Gson gson = new Gson();
+                            Type type = new TypeToken<List<User>>() {
+                            }.getType();
+                            List<User> list = gson.fromJson(jsonObject.optString("friend_list"), type);
+
+                            for (User u: list) {
+                                Log.e("user:", u.toString());
+                                list_user.add(u);
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
+        });
     }
 
     public void setSearchMessage(){
-        TextView textView = (TextView) findViewById(R.id.search_person);
-        ImageView imageView = (ImageView) findViewById(R.id.search_person_head_img);
-
-        if (user != null){
-            //ImageView
-            textView.setText(user.getNikname());
-
-            LinearLayout linearLayout = (LinearLayout) findViewById(R.id.search);
-            linearLayout.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(AddFriendActivity.this, DetailsActivity.class);
-                    intent.putExtra("search_user", new Gson().toJson(user));
-                    startActivity(intent);
-                }
-            });
-        } else {
-                imageView.setImageURI(Uri.parse("http://pic4.nipic.com/20091217/3885730_124701000519_2.jpg"));
-                textView.setText("");
-        }
     }
 
-    public void setOnEditorActionListener(final EditText editText){
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH){
-                    String aimsPhoneNumber = editText.getText().toString();
-                    requestServert(aimsPhoneNumber);
-                }
-                return false;
-            }
-        });
-    }
-
-    public void setActionBar(){
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null){
-            actionBar.hide();
-        }
-        Button btn_back = (Button) findViewById(R.id.back);
-
-        btn_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-    }
-
-    public void requestServert(final String aimsPthoneNumber){
+    public void requestServert(){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                OkHttpClient client = new OkHttpClient();
-                Request request = new Request.Builder().url("http://172.20.10.10:8080/api/user/add_search/" + aimsPthoneNumber).build();
+                final OkHttpClient client = new OkHttpClient().newBuilder().build();
+                String Mobile = editText.getText().toString();
+                Request request;
+
                 try {
+                    if (Mobile.length() == 11)
+                         request = new Request.Builder().get().url("http://172.20.10.10:8080/api/user/add_search_by_number/" + editText.getText().toString()).build();
+                    else
+                         request = new Request.Builder().get().url("http://172.20.10.10:8080/api/user/add_search_by_uid/" + editText.getText().toString()).build();
+
                     Response response = client.newCall(request).execute();
                     String responseData = response.body().string();
+
                     Log.e("responseData:", responseData);
                     JSONObject jsonObject = new JSONObject(responseData);
 
                     if (jsonObject.optString("err") == "") {
                         Gson gson  = new Gson();
                         user = gson.fromJson(jsonObject.getString("add_search"),User.class);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView = (TextView) findViewById(R.id.search_person);
+                                textView.setText(user.getNikname());
+                            }
+                        });
                     }
 
                 } catch (IOException e) {

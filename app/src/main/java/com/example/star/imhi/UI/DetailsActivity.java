@@ -37,6 +37,7 @@ public class DetailsActivity extends AppCompatActivity {
 //    private TextView t_tel_number;
 //      private TextView t_more;
 //    private ImageView sex;
+      private User user;
 
     Intent intent_message;
 
@@ -82,6 +83,10 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void setButtonAction(){
+        Button btn_send = (Button) findViewById(R.id.btn_send);
+        Button btn_del = (Button) findViewById(R.id.btn_del);
+
+
 
     }
 
@@ -91,7 +96,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         intent_message = getIntent();
         Gson gson = new Gson();
-        User user = gson.fromJson(intent_message.getStringExtra("user"), User.class);
+        user = gson.fromJson(intent_message.getStringExtra("user"), User.class);
         TextView t_name = (TextView)findViewById(R.id.name);
         TextView t_id_number = (TextView)findViewById(R.id.id_number);
         TextView t_tel_number = (TextView)findViewById(R.id.tel_number);
