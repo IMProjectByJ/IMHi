@@ -35,7 +35,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.net.Authenticator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +44,6 @@ import com.example.star.imhi.Utils.AccountValidatorUtil;
 import com.example.star.imhi.Utils.MD5Util;
 import com.google.gson.Gson;
 
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import okhttp3.Call;

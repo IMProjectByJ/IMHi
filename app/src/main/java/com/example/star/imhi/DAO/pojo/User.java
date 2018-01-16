@@ -3,6 +3,8 @@ package com.example.star.imhi.DAO.pojo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 /**
  * Created by star on 18-1-5.
  */
@@ -16,7 +18,7 @@ public class User  {
     private  String gender;
     private  Integer age;
     private  String userPassword;
-    private  String birth;
+    private  Date birth;
     private  String motto;
 
     @Override
@@ -29,7 +31,7 @@ public class User  {
                 ", gender='" + gender + '\'' +
                 ", age=" + age +
                 ", userPassword='" + userPassword + '\'' +
-                ", birth='" + birth + '\'' +
+                ", birth=" + birth +
                 ", motto='" + motto + '\'' +
                 '}';
     }
@@ -90,11 +92,11 @@ public class User  {
         this.userPassword = userPassword;
     }
 
-    public String getBirth() {
+    public Date getBirth() {
         return birth;
     }
 
-    public void setBirth(String birth) {
+    public void setBirth(Date birth) {
         this.birth = birth;
     }
 
