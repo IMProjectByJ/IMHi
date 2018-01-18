@@ -27,6 +27,17 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
             + "message_type integer,"
             + "text_content text,"
             + "date datetime)";
+    public static final String CREATE_GroupChat = "create table GroupChat ("
+            + "group_id text  primary key,"
+            + "user_id text"
+            + "create_date text"
+            + "group_name text)";
+    public static final  String  CREATE_GroupUser = "create table GroupUser ("
+            + "group_id text,"
+            + "member_id text,"
+            + "group_membership text,"
+            + "primary key(group_id,member_id))";
+
     private  Context mcontext;
 
     public MyDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -38,6 +49,8 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_FRIENDS);
         db.execSQL(CREATE_History_message);
+        db.execSQL(CREATE_GroupChat);
+        db.execSQL(CREATE_GroupUser);
         Toast.makeText(mcontext,"Create success",Toast.LENGTH_SHORT).show();
     }
 

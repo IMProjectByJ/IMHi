@@ -9,6 +9,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.star.imhi.R;
+
 import java.io.IOException;
 
 /**
@@ -48,8 +50,14 @@ public class MyService extends Service {
     class ConnectionThread extends HandlerThread {
         public ConnectionThread(String name,Context context) {
             super(name);
+//            ConnectionConfig config = new ConnectionConfig.Builder(context)
+//                    .setIp(getString(R.string.socketUrl) )
+//                    .setPort(R.string.socketPort)
+//                    .setReadBufferSize(2048)
+//                    .setConnectionTimeout(10)
+//                    .builder();
             ConnectionConfig config = new ConnectionConfig.Builder(context)
-                    .setIp("192.168.253.1")
+                    .setIp("192.168.253.1" )
                     .setPort(8888)
                     .setReadBufferSize(2048)
                     .setConnectionTimeout(10)

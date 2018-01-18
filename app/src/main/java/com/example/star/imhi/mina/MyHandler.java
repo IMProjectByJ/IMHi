@@ -36,22 +36,20 @@ public class MyHandler extends IoHandlerAdapter {
         JSONObject  jsonObject = new JSONObject(message.toString());
         String type =  jsonObject.getString("message_type");
         Log.e("测试","测试能否进行直接转换");
-
+//yuyisummer 进行准备阶段
+        switch (type){
+            case "7":
+        }
         if(type.equals("7")) {
             Gson gson = new Gson();
             Protocol protocol = gson.fromJson(message.toString(), Protocol.class);
             Map<String,Integer> content = (Map<String, Integer>) protocol.getTextcontent();
             Object object = protocol.getTextcontent();
             Map<String,String> map = new ObjectToMap().objecttomap(object);
-
-            //String content = protocol.getTextcontent().toString();
             Log.e("MyHandler", content.toString());
-            Log.e("ceshi",String.valueOf(content.get("10000")));
             for(Map.Entry entry : content.entrySet()){
                 Log.e("输出key",String.valueOf(entry.getKey()));
             }
-            Log.e("MyHandler___Map", map.toString());
-            Log.e("测试", "ing");
         }
       //  Log.e("MyHandler",jsonObject.toString());
         if(mContext != null){

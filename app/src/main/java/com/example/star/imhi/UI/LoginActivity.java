@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -333,6 +334,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                                             SQLiteDatabase db = dbHelper.getWritableDatabase();
                                             JSONArray arr = new JSONArray(user_str);
+                                            Log.e("LoginAcitivy","arr "+arr.length());
                                             for(int i = 0 ;i<arr.length();i++){
                                                 JSONObject temp = (JSONObject) arr.get(i);
                                                 int userid = temp.getInt("userId");
@@ -344,20 +346,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                                 values.put("user_id",userid);
                                                 values.put("phone_num",phone_num);
                                                 values.put("nikname",nikname);
-                                              if( db.query("Friends",null,"user_id=?", new String[]{user_id},null,null,null) == null)
+                                                Cursor cursor;
+                                                String str = "select * from Friends where name="+userid;
+                                                cursor = db.query("Friends", new String[]{"user_id"},"user_id=?", new String[]{String.valueOf(userid)},null,null,null);
+                                               // db.execSQL(str);
+                                                Log.e("LoginAcitvity","cursor num" + cursor.getCount());
+                                                if(cursor.getCount() == 0)
                                               {
+
                                                   values.put("user_id",userid);
-                                                  db.insert("Friends",null,values);
+                                               long retval =  db.insert("Friends",null,values);
+
+                                                  if(retval == -1)
+                                                     Log.e("LoginActivity","failed");
+                                                  else
+                                                      Log.e("LoginActivity","success "+retval);
                                               } else {
-                                                  db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
-                                              }
+
+                                                    int update = db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
+                                                    Log.e("LoginAcitivity","ceshi "+update);
+                                                }
 
 
                                             }
                                            // Log.e("LoginActivity",list.toString());
 
                                             //这里应该做一步
-                                            Log.e("LoginAcitivty", responseData);
+                                          //  Log.e("LoginAcitivty", responseData);
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         } catch (JSONException e) {
@@ -375,6 +390,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
 
+                                SharedPreferences sp = getSharedPreferences("info", Context.MODE_PRIVATE);
+                                sp.edit().putString("user_id",String.valueOf(finalUser.getUserId())).commit();
 
                                 Intent intent = new Intent(LoginActivity.this, StartActivity.class);
                                 //  intent.putExtra("loginUser", new Gson().toJson(finalUser));

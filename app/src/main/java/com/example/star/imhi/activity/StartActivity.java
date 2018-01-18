@@ -32,6 +32,7 @@ import com.example.star.imhi.DAO.pojo.Friends;
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.example.star.imhi.UI.HomepageActivity;
+import com.example.star.imhi.adapter.ChatListAdapterr;
 import com.example.star.imhi.adapter.FriendsListAdapter;
 import com.example.star.imhi.adapter.TabAdapter;
 import com.example.star.imhi.database.MyDatabaseHelper;
@@ -65,7 +66,6 @@ public class StartActivity extends BaseActivity {
     String friend_str;
     RecyclerView recyclerView;
     FriendsListAdapter adapter ,adapter1;
-
     private MyDatabaseHelper dbHelper;
 
     private ImageView mTabLine;// 指导线
@@ -73,10 +73,11 @@ public class StartActivity extends BaseActivity {
 
     private ViewPager mViewPager;
     private TabAdapter mAdapter;
-
+    private  int position = 0;
     private TextView title_name;
     private List<Fragment> mFragments = new ArrayList<Fragment>();
-
+    private  tab1Fragment tab1Fragment =new tab1Fragment();
+   // int initFlag = 1;
     //yuyisummer
     String loginUser  ;
 
@@ -84,20 +85,18 @@ public class StartActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_start);
+
 //yuyisummer
+        dbHelper = new MyDatabaseHelper(this,"FriendsStore.db",null,1);
+        dbHelper.getWritableDatabase();
+
+
         Intent intent = getIntent();
         loginUser = intent.getStringExtra("loginUser");
         MsgReceiver msgReceiver = new MsgReceiver();
         IntentFilter filter = new IntentFilter("com.bs.myMsg");
         LocalBroadcastManager.getInstance(StartActivity.this).registerReceiver(msgReceiver,filter);
-
-
-
-
-
-
-
-
 
 
 
@@ -133,10 +132,6 @@ public class StartActivity extends BaseActivity {
     }
 
 
-
-
-
-
     private void initViews(Map<String,Integer> content) {
         mRadioGroup = (RadioGroup) findViewById(R.id.id_radioGroup);
         mRadio01 = (RadioButton) findViewById(R.id.tab1);
@@ -154,7 +149,8 @@ public class StartActivity extends BaseActivity {
         lp.width=screenWidth/3;
         mTabLine.setLayoutParams(lp); //设置该控件的layoutParams参数
     //这里需要往布局页面里加数据
-        mFragments.add(new tab1Fragment());
+        mFragments.clear();
+        mFragments.add(tab1Fragment);
         mFragments.add(new tab2Fragment(content));
         mFragments.add(new tab3Fragment());
 
@@ -163,6 +159,10 @@ public class StartActivity extends BaseActivity {
         mViewPager.setAdapter(mAdapter);
         mViewPager.setCurrentItem(1);
         mRadio02.setChecked(true);
+
+
+
+
     }
 
     private void initEvent() {
@@ -256,43 +256,58 @@ public class StartActivity extends BaseActivity {
                     Protocol protocol = gson.fromJson(intent.getStringExtra("friendstr"), Protocol.class);
                     Map<String,Integer> content = (Map<String, Integer>) protocol.getTextcontent();
                     //这里要传数据
+                    /*
+                    if(initFlag == 1) {
+                        init(content);
+                        initFlag++;
+                    }*/
+
                     init(content);
+
+                    SQLiteDatabase db = dbHelper.getWritableDatabase();
+                    for(Map.Entry entry : content.entrySet()) {
+                        String user_id = String.valueOf(entry.getKey());
+                        Cursor cursor;
+                        cursor = db.query("Friends",null,"user_id=?", new String[]{user_id},null,null,null);
+                        cursor.moveToFirst();
+                        cursor.getString(cursor.getColumnIndex("nikname"));
+                        String nikname = cursor.getString(cursor.getColumnIndex("nikname"));
+                        String xiaoxi = content.get(user_id)+"条消息未读";
+                        tab1Fragment.getAdapter().addItem(position,nikname,xiaoxi);
+                        position++;
+                    }
+
                     break;
                 case "8":
                     Log.e("HomepageActivity","8");
-                    receiveadd();
+               //  receiveadd();
+                    String str = intent.getStringExtra("friendstr");
+                    JSONObject jsonObject = null;
+
+                    try {
+                       jsonObject  = new JSONObject(str);
+                       tab1Fragment.getAdapter().addItem(position,jsonObject.getString("from"),"获取新消息");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
                     break;
 
             }
         }
 
     }
-
+    int i =0;
     public void init(Map<String,Integer> content)
     {
-        setContentView(R.layout.activity_start);
+        i++;
+        Log.e("StartActivity","      "+String.valueOf(i));
+
         List<Friends> friends_List = new ArrayList<>();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-
-        //yuyisummer进行数据库测试
         setSupportActionBar(toolbar);
-    //   recyclerView = (RecyclerView) findViewById(R.id.recyfriendslist111);
-  //      LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(layoutManager);
-      // adapter = new FriendsListAdapter(friends_List);
-    //   创建数据库
-//        dbHelper = new MyDatabaseHelper(this,"FriendsStore.db",null,2);
-//        db = dbHelper.getWritableDatabase();
-//        ContentValues values = new ContentValues();
-//        values.clear();
-//        values.put("user_id",10001);
-//        values.put("nikname","小小小小郁");
-//        values.put("head_url",R.drawable.left2);
-//        db.insert("Friends",null,values);
-//        values.clear();
-
-
 
         title_name = (TextView) findViewById(R.id.title_name);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -303,25 +318,6 @@ public class StartActivity extends BaseActivity {
         }
         initViews(content);
         initEvent();
-
-/*
-        //查询表中所有的数据
-         Cursor cursor = db.query("Friends",null,null,null,null,null,null);
-        if (cursor.moveToFirst()){
-            do {
-                //遍历Cursor对象，取出数据
-                int id = cursor.getInt(cursor.getColumnIndex("user_id"));
-                String dname = cursor.getString(cursor.getColumnIndex("nikname"));
-                int dtouxiang = cursor.getInt(cursor.getColumnIndex("head_url"));
-                Friends user = new Friends(dname,dtouxiang);
-                friends_List.add(user);
-                recyclerView.setAdapter(adapter);
-            }while (cursor.moveToNext());
-        }
-        cursor.close();
-*/
-
-
 
     }
 
@@ -341,6 +337,12 @@ public class StartActivity extends BaseActivity {
     }
     public void receiveadd(){
         tab1Fragment tab1Fragment = new tab1Fragment();
-        tab1Fragment.addlist("群通知","有人加你");
+       // tab1Fragment.addlist("群通知","有人加你");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        finish();
     }
 }

@@ -1,6 +1,8 @@
 package com.example.star.imhi.addfriend;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -63,7 +65,9 @@ public class AddFriendActivity extends AppCompatActivity {
                    // startActivity(intent);
                     JSONObject json = new JSONObject();
                     try {
-                        json.put("from","10001");
+                        SharedPreferences preferences=getSharedPreferences("info", Context.MODE_PRIVATE);
+                        String user_id=preferences.getString("user_id","1");
+                        json.put("from",user_id);
                         json.put("to",user.getUserId());
                         json.put("message_type","8");
                     } catch (JSONException e) {
@@ -86,9 +90,9 @@ public class AddFriendActivity extends AppCompatActivity {
                 String Mobile = editText.getText().toString();
                 Request request;
                 if(Mobile.length() == 11)
-                    request = new Request.Builder().url("http://192.168.253.1:8080/api/user/add_search_by_number/" + editText.getText().toString()).build();
+                    request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_number/" + editText.getText().toString()).build();
                 else
-                    request = new Request.Builder().url("http://192.168.253.1:8080/api/user/add_search_by_uid/" + editText.getText().toString()).build();
+                    request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_uid/" + editText.getText().toString()).build();
                 try {
                     Response response = client.newCall(request).execute();
                     String responseData = response.body().string();

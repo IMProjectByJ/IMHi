@@ -1,6 +1,7 @@
 package com.example.star.imhi.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import com.example.star.imhi.DAO.pojo.ChatList;
 import com.example.star.imhi.R;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by d c on 2018/1/15.
@@ -54,4 +56,11 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
     {
         return mchatlist.size();
     }
+    public void addItem(int position,String fromwho,String whatcontext) {
+        Log.e("chatlistAdapterr","引用成功");
+        ChatList list = new ChatList(fromwho,whatcontext);
+        mchatlist.add(position,list);
+        notifyItemInserted(position);
+    }
+
 }
