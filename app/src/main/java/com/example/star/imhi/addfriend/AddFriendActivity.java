@@ -65,8 +65,8 @@ public class AddFriendActivity extends AppCompatActivity {
                    // startActivity(intent);
                     JSONObject json = new JSONObject();
                     try {
-                        SharedPreferences preferences=getSharedPreferences("info", Context.MODE_PRIVATE);
-                        String user_id=preferences.getString("user_id","1");
+                        SharedPreferences preferences=getSharedPreferences("userInfo", Context.MODE_PRIVATE);
+                        String user_id=preferences.getString("userId","1");
                         json.put("from",user_id);
                         json.put("to",user.getUserId());
                         json.put("message_type","8");

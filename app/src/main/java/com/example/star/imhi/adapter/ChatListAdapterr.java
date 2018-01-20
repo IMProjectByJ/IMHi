@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.example.star.imhi.DAO.pojo.ChatList;
 import com.example.star.imhi.R;
+import com.example.star.imhi.database.MyDatabaseHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -20,11 +21,11 @@ import java.util.Map;
 
 public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.ViewHolder> {
     private List<ChatList> mchatlist;
+    int position;
     static class  ViewHolder extends RecyclerView.ViewHolder{
         ImageView chatlistimage;
         TextView chatlistwho;
         TextView chatlistwhat;
-
         public ViewHolder (View itemView) {
             super(itemView);
            // chatlistimage = (ImageView) itemView.findViewById(R.id.touxiang);
@@ -34,6 +35,7 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
     }
     public  ChatListAdapterr(List<ChatList> chatList){
         mchatlist = chatList;
+        position = mchatlist.size();
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -56,10 +58,12 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
     {
         return mchatlist.size();
     }
-    public void addItem(int position,String fromwho,String whatcontext) {
+    public void addItem(String fromwho,int type,String whatcontext,Integer old_id,String nikname) {
         Log.e("chatlistAdapterr","引用成功");
-        ChatList list = new ChatList(fromwho,whatcontext);
+        ChatList list = new ChatList(fromwho,type,whatcontext,old_id,nikname);
         mchatlist.add(position,list);
+
+        position++;
         notifyItemInserted(position);
     }
 

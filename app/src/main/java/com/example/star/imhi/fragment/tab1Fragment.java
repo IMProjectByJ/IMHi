@@ -1,5 +1,6 @@
 package com.example.star.imhi.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,12 +20,19 @@ import java.util.List;
  * Created by d c on 2018/1/12.
  */
 
+
+@SuppressLint("ValidFragment")
 public class tab1Fragment  extends android.support.v4.app.Fragment implements View.OnClickListener{
     RecyclerView recyclerView;
     ChatListAdapterr adapter ;
-    List<ChatList> chat_List = new ArrayList<>();
+   // List<ChatList> chat_List = new ArrayList<>();
+   List<ChatList> chat_List;
     String fromwhoh,what;
     LinearLayoutManager layoutManager;
+    @SuppressLint("ValidFragment")
+    public tab1Fragment(List<ChatList> chat_List){
+            this.chat_List = chat_List;
+    }
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_message, container, false);
 

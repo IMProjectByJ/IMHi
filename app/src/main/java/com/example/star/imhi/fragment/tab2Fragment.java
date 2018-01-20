@@ -31,14 +31,20 @@ public class tab2Fragment extends android.support.v4.app.Fragment implements Vie
     private LinearLayout newfriends;
     private int mIndex;
     private String applicationContext;
-    Map<String,Integer> content;
+    Map<String,String> content;
+    //好友
 
+    home1Fragment home1Fragment;
+    //群
+    home2Fragment home2Fragment;
+/*
     public tab2Fragment(){
     }
-
+*/
     @SuppressLint("ValidFragment")
-    public tab2Fragment(Map<String,Integer> content){
-        this.content = content;
+    public tab2Fragment(home1Fragment home1Fragment,home2Fragment home2Fragment){
+        this.home1Fragment = home1Fragment;
+        this.home2Fragment = home2Fragment;
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,11 +70,13 @@ public class tab2Fragment extends android.support.v4.app.Fragment implements Vie
 
 
     private void initFragment() {
+        /*
     //好友
-        home1Fragment home1Fragment =new home1Fragment(content);
+
+        home1Fragment home1Fragment =new home1Fragment();
         //群
         home2Fragment home2Fragment =new home2Fragment();
-
+*/
 
     //添加到数组
     mFragments = new Fragment[]{home1Fragment,home2Fragment};

@@ -285,7 +285,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 } else {
                                     Gson gson = new Gson();
                                     user = gson.fromJson(strJson, User.class);
-                                    SharedPreferences share = getSharedPreferences("userInfo", Activity.MODE_WORLD_READABLE);// 私有方式获取
+                                    SharedPreferences share = getSharedPreferences("userInfo", Context.MODE_PRIVATE);// 私有方式获取
                                     SharedPreferences.Editor edit = share.edit();
                                     edit.putString("userId", user.getUserId() + "");
                                     edit.putString("userPassword", user.getUserPassword()); // 用户密码
@@ -315,7 +315,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     @Override
                                     public void run() {
                                         OkHttpClient client = new OkHttpClient();
-                                        String user_id = "10001";
+                                        String user_id = String .valueOf(finalUser.getUserId());
+                                        Log.e("finaluser",user_id);
                                         Request request;
                                         request = new Request.Builder().url(getString(R.string.postUrl)+"api/user/find_friend_list/" + user_id).build();
                                         try {
@@ -335,6 +336,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                             SQLiteDatabase db = dbHelper.getWritableDatabase();
                                             JSONArray arr = new JSONArray(user_str);
                                             Log.e("LoginAcitivy","arr "+arr.length());
+                                            Map<String,String> map = new HashMap<>();
                                             for(int i = 0 ;i<arr.length();i++){
                                                 JSONObject temp = (JSONObject) arr.get(i);
                                                 int userid = temp.getInt("userId");
@@ -346,6 +348,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                                 values.put("user_id",userid);
                                                 values.put("phone_num",phone_num);
                                                 values.put("nikname",nikname);
+                                                Log.e("map,put",user_id+nikname);
+                                                map.put(String.valueOf(userid),nikname);
                                                 Cursor cursor;
                                                 String str = "select * from Friends where name="+userid;
                                                 cursor = db.query("Friends", new String[]{"user_id"},"user_id=?", new String[]{String.valueOf(userid)},null,null,null);
@@ -366,9 +370,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                                     int update = db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
                                                     Log.e("LoginAcitivity","ceshi "+update);
                                                 }
-
-
                                             }
+                                            SharedPreferences share = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);// 私有方式获取
+                                            SharedPreferences.Editor edit = share.edit();
+                                           // JSONObject jsonObject = new JSONObject(map);
+                                            Gson gson = new Gson();
+                                            String jsonStr = gson.toJson(map);
+                                           // edit.putString("friendlist", String.valueOf(jsonObject));
+                                            edit.putString("friendlist", jsonStr);
+                                            Log.e("login+friendlist",jsonStr);
+                                            edit.commit();
+
+
                                            // Log.e("LoginActivity",list.toString());
 
                                             //这里应该做一步

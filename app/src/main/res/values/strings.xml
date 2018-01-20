@@ -23,13 +23,13 @@
 
     <!--Strings to some compile-->
 
-    <string name="postUrl">http://192.168.253.1:8080/</string>
+    <string name="postUrl">http://192.168.1.106:8080/</string>
     <string name="title_activity_login2">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="hello_world">Hello world!</string>
     <string name="show_dialog">Show WaitDialog</string>
     <string name="please_wait">请稍后...</string>
-    <string name= "socketUrl">192.168.253.1</string>
+    <string name= "socketUrl">192.168.1.106</string>
     <string name = "socketPort">8888</string>
     <string name="denglulnfo">5</string>
     <string name="denglucommit">6</string>

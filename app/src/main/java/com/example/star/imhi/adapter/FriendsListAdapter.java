@@ -42,7 +42,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
     @Override
     public void onBindViewHolder(FriendsListAdapter.ViewHolder holder, int position) {
         Friends mfriend= mfriends.get(position);
-        holder.friendimage.setImageResource(mfriend.getImageid());
+      //  holder.friendimage.setImageResource(mfriend.getImageid());
         holder.friendname.setText(mfriend.getName());
 
     }
