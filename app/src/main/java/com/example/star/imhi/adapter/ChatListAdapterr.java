@@ -1,6 +1,7 @@
 package com.example.star.imhi.adapter;
 
 import android.content.Intent;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import com.example.star.imhi.DAO.pojo.ChatList;
 import com.example.star.imhi.R;
 import com.example.star.imhi.activity.Notice;
 import com.example.star.imhi.database.MyDatabaseHelper;
+import com.example.star.imhi.activity.Notice;
 
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +87,20 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
         Log.e("chatlistAdapterr","引用成功");
         String key = fromwho+"|"+type;
         ChatList list = new ChatList(fromwho,type,whatcontext,nikname);
+        Integer weizhi = map.get(key);
+        if(weizhi == null) {
+            mchatlist.add(position, list);
+            map.put(key,position);
+            position++;
+            notifyItemInserted(position);
+        } else {
+            int n = Integer.parseInt(mchatlist.get(weizhi).getWhatcontext());
+            n = n+Integer.valueOf(whatcontext);
+            mchatlist.get(weizhi).setWhatcontext(String.valueOf(n));
+            notifyItemChanged(weizhi);
+        }
+        String key = fromwho+"|"+type;
+        ChatList list = new ChatList(fromwho,type,whatcontext ,old_id,nikname);
         Integer weizhi = map.get(key);
         if(weizhi == null) {
             mchatlist.add(position, list);

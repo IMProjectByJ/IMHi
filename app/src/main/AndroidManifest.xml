@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.star.imhi">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.star.imhi"
+    >
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -14,6 +16,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="true"
@@ -21,7 +26,9 @@
         android:label=""
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/home">
+        android:theme="@style/home"
+        tools:replace="android:icon, android:label,android:theme">
+
         <activity
             android:name=".UI.LoginActivity"
             android:launchMode="singleTask"
@@ -38,17 +45,15 @@
 
         <activity
             android:name=".activity.StartActivity"
+            android:launchMode="singleTask"
             android:label=""
             />
-        <activity android:name=".UI.RegisterActivity" />
         <activity android:name=".UI.MainActivity"/>
         <service android:name=".mina.MyService"/>
         <activity android:name=".UI.HomepageActivity"/>
         <activity android:name=".activity.Notice"/>
-
-
-
-
+        <activity android:name="com.example.star.imhi.UI.ForgetActivity" />
+        <activity android:name="com.example.star.imhi.UI.SignupActivity"/>
         <activity android:name=".activity.Camera" />
         <activity android:name=".activity.Picture" />
         <activity android:name=".activity.ShowPicture" />
@@ -63,14 +68,24 @@
 
 
 
+        <!--<provider-->
+            <!--android:name="android.support.v4.content.FileProvider"-->
+            <!--android:authorities="com.dc.tx.fileprovider.IMAGE_CAPTURE"-->
+            <!--android:exported="false"-->
+            <!--android:grantUriPermissions="true">-->
+            <!--<meta-data-->
+                <!--android:name="android.support.FILE_PROVIDER_PATHS"-->
+                <!--android:resource="@xml/picture_paths" />-->
+        <!--</provider>-->
+
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.dc.tx.fileprovider.IMAGE_CAPTURE"
-            android:exported="false"
-            android:grantUriPermissions="true">
+            android:authorities="com.lt.uploadpicdemo.fileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/picture_paths" />
+                android:resource="@xml/file_paths" />
         </provider>
 
         <activity
@@ -80,7 +95,8 @@
         <activity android:name=".addfriend.MoreActivity" />
         <activity android:name=".addfriend.RemarksActivity" />
         <activity android:name=".addfriend.AddFriendActivity"></activity>
-
+        <activity android:name=".personally.Personal_information" />
+        <activity android:name=".personally.PersonalMoreActivity"></activity>
 
 
 

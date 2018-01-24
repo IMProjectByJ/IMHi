@@ -53,11 +53,14 @@ public class MyHandler extends IoHandlerAdapter {
             case "6":
                 break;
             case "7":
+
                 textcontent = jsonObject.getString("textcontent");
                 intent.putExtra("textcontent", textcontent);
 
                 break;
             case "8":
+                textcontent = jsonObject.getString("textcontent");
+                intent.putExtra("textcontent",textcontent);
             case "9":
                 Log.e("测试消息type8", message.toString());
                 textcontent = jsonObject.getString("textcontent");
