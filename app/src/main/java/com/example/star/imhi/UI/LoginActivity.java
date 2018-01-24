@@ -4,65 +4,63 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.net.Authenticator;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.example.star.imhi.DAO.pojo.User;
-import com.example.star.imhi.MyApplication;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.AccountValidatorUtil;
 import com.example.star.imhi.Utils.MD5Util;
 import com.example.star.imhi.activity.StartActivity;
+import com.example.star.imhi.adapter.UserAdapter;
 import com.example.star.imhi.database.MyDatabaseHelper;
-import com.example.star.imhi.mina.MyService;
-import com.example.star.imhi.mina.Protocol;
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 
-import net.sf.json.JSON;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -106,6 +104,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
     private TextView tforgetPasswdView;
     private TextView tRegView;
+    private SharedPreferences sp;
+    private SharedPreferences.Editor editor;
+    private CheckBox rem ;
+    private CheckBox auto ;
+    private List<User> list_user = new ArrayList<>();
+    private Set<String> set_user;
+    private UserAdapter userAdapter;
+    private ListView listView;
+    private ImageView list_down;
+    private boolean isDown = false;
+    private ImageView delClose;
 
     //yuyisummer private  MyDatabaseHelper dbHelper;
     private  MyDatabaseHelper dbHelper;
@@ -114,6 +123,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        initUsers();
         // Set up the login form.
         mMobileView = (AutoCompleteTextView) findViewById(R.id.mobile);
         populateAutoComplete();
@@ -137,15 +148,56 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
+        for (String s:set_user) {
+            list_user.add(new User(s));
+        }
+        userAdapter = new UserAdapter(LoginActivity.this,R.layout.adapter_user_item, list_user);
+        listView.setAdapter(userAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                delClose = (ImageView)findViewById(R.id.adapter_account_item_delete);
+                User user = list_user.get(i);
+                mMobileView.setText(user.getPhoneNum());
+                listView.setVisibility(View.GONE);
+                isDown = false;
+                list_down.setImageResource(R.drawable.down);
+
+                delClose.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        set_user.remove(list_user.get(i).getPhoneNum());
+                        list_user.remove(i);
+                        userAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
+
+        isSetPassword();
+        listDown();
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         tforgetPasswdView = findViewById(R.id.forgetPassword);
         tRegView = findViewById(R.id.regBySms);
 // 跳转到注册界面
+        /*
+         add by liuyunxing
+         date 1-23
+         */
         tRegView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tforgetPasswdView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this,ForgetActivity.class);
                 startActivity(intent);
             }
         });
@@ -156,6 +208,69 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         //yuyisummer 1.16创建Stetho
         sqlinit();
 
+    }
+
+    public void listDown(){
+        list_down = (ImageView) findViewById(R.id.list_down);
+        list_down.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (isDown == false) {
+
+                    listView.setVisibility(View.VISIBLE);
+                    list_down.setImageResource(R.drawable.up);
+                    isDown = true;
+                } else {
+                    listView.setVisibility(View.GONE);
+                    list_down.setImageResource(R.drawable.down);
+                    isDown = false;
+                }
+
+            }
+        });
+    }
+
+    //各成员变量初始化初始化
+    public void initUsers(){
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
+        set_user = sp.getStringSet("users",new HashSet<String>());
+        listView = (ListView)findViewById(R.id.list_user);
+        rem = (CheckBox) findViewById(R.id.rem);
+        auto = (CheckBox) findViewById(R.id.auto);
+        delClose = (ImageView) findViewById(R.id.adapter_account_item_delete);
+        editor = sp.edit();
+    }
+
+    //登录界面显示账号和密码
+    public void isSetPassword(){
+        if (sp.getBoolean("rememberPass", false)){
+            String count = sp.getString("userId", "");
+            String passwd = sp.getString("userPassword", "");
+            mMobileView.setText(count);
+            mPasswordView.setText(passwd);
+            rem.setChecked(true);
+        }
+    }
+
+    //是否记住密码
+    public void setPassword(){
+        if (rem.isChecked()) {
+            editor.putBoolean("rememberPass", true);
+            editor.putString("userId", mMobileView.getText().toString());
+            editor.putString("userPassword", mPasswordView.getText().toString());
+
+            set_user.add(mMobileView.getText().toString());
+            editor.putStringSet("users", set_user);
+
+            if (auto.isChecked()){
+                editor.putBoolean("auto", true);
+            }
+
+        } else {
+            editor.clear();
+        }
+        editor.apply();
     }
 
     // 获取权限
@@ -254,6 +369,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             final OkHttpClient okHttpClient = new OkHttpClient().newBuilder().build();
             Request request;
             if (Mobile.length() == 11)
+                //head("token",指定的token)
                 request = new Request.Builder().get().url(getString(R.string.postUrl) + "api/user/" + Mobile + "/" + md5password).build();
             else
                 request = new Request.Builder().get().url(getString(R.string.postUrl) + "api/user/id/" + Mobile + "/" + md5password).build();
@@ -288,7 +404,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     SharedPreferences share = getSharedPreferences("userInfo", Context.MODE_PRIVATE);// 私有方式获取
                                     SharedPreferences.Editor edit = share.edit();
                                     edit.putString("userId", user.getUserId() + "");
-                                    edit.putString("userPassword", user.getUserPassword()); // 用户密码
+                                    edit.putString("token", user.getUserPassword()); // 用户密码
                                     edit.commit();
                                     // 作为token认证
 
@@ -310,6 +426,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 // Intent intent = new Intent(LoginActivity.this, HomepageActivity.class);
 
                                 //yuyiummser 2018.1.15
+                                setPassword();
 
                                 new Thread(new Runnable() {
                                     @Override
@@ -357,7 +474,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                                 Log.e("LoginAcitvity","cursor num" + cursor.getCount());
                                                 if(cursor.getCount() == 0)
                                               {
-
                                                   values.put("user_id",userid);
                                                long retval =  db.insert("Friends",null,values);
 
@@ -373,19 +489,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                             }
                                             SharedPreferences share = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);// 私有方式获取
                                             SharedPreferences.Editor edit = share.edit();
-                                           // JSONObject jsonObject = new JSONObject(map);
                                             Gson gson = new Gson();
                                             String jsonStr = gson.toJson(map);
-                                           // edit.putString("friendlist", String.valueOf(jsonObject));
                                             edit.putString("friendlist", jsonStr);
-                                            Log.e("login+friendlist",jsonStr);
                                             edit.commit();
 
-
-                                           // Log.e("LoginActivity",list.toString());
-
-                                            //这里应该做一步
-                                          //  Log.e("LoginAcitivty", responseData);
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         } catch (JSONException e) {
@@ -394,13 +502,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     }
                                 }).start();
 
+/*
+                                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                                Cursor cursor;
+                                int old_id ;
+                                cursor  = db.query("message", new String[]{"max(message_id)"},"message_type=?", new String[]{"8","9","10"},null,null,null);
 
+                                if(cursor.getCount() == 0) {
+                                    old_id = 0;
 
-
-
-
-
-
+                                } else{
+                                    old_id = cursor.getColumnIndex("messgage_id");
+                                }
+*/
+//拉取离线信息
 
 
                                 SharedPreferences sp = getSharedPreferences("info", Context.MODE_PRIVATE);
@@ -413,13 +528,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 // Date dt = new Date();
                                 //  intent.putExtra("login_date",dt.toLocaleString());
                                 //传入token，测试
-                                intent.putExtra("token", "假装有");
-                                //进行socket通信
-                                /*
-                                Intent in = new Intent(LoginActivity.this, MyService.class);
-                                Log.e("LoginActivity", "进行MyService");
-                                startService(in);
-                                */
+
                                 startActivity(intent);
                                 finish();
                             } else if (finalUser == null) {

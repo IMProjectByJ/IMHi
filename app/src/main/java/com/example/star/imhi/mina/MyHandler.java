@@ -40,14 +40,18 @@ public class MyHandler extends IoHandlerAdapter {
         String type =  jsonObject.getString("message_type");
         Log.e("测试","测试能否进行直接转换");
         Log.e("测试",jsonObject.toString());
+
         switch (type) {
+            case "6":
+                break;
             case  "7":
                 textcontent = jsonObject.getString("textcontent");
                 intent.putExtra("textcontent",textcontent);
 
                 break;
             case "8":
-                intent.putExtra("textcontent",message.toString());
+                textcontent = jsonObject.getString("textcontent");
+                intent.putExtra("textcontent",textcontent);
                 break;
 
         }

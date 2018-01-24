@@ -11,6 +11,8 @@ android {
         useLibrary'org.apache.http.legacy'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -21,6 +23,7 @@ android {
         exclude 'META-INF/DEPENDENCIES'// 这个纠结了很久
 
     }
+
 }
 
 dependencies {
@@ -61,6 +64,9 @@ dependencies {
     compile 'com.facebook.stetho:stetho:1.3.1'
 //If you want to add a network helper
     compile 'com.facebook.stetho:stetho-okhttp3:1.3.1'
+    compile 'me.jessyan:progressmanager:1.5.0'
+    compile 'com.github.f0ris.sweetalert:library:1.5.1'
+
 
 
 

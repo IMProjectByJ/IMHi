@@ -19,6 +19,9 @@ public class User  {
     private  String birth;
     private  String motto;
 
+    public User(){}
+    public User(String phoneNum){this.phoneNum = phoneNum;}
+
     @Override
     public String toString() {
         return "User{" +
