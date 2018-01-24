@@ -2,6 +2,7 @@ package com.example.star.imhi.adapter;
 
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import java.util.List;
 
 public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.ViewHolder> {
     private List<Friends> mfriends;
+    int position;
     static class  ViewHolder extends RecyclerView.ViewHolder{
         ImageView friendimage;
         TextView friendname;
@@ -31,6 +33,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
     }
     public  FriendsListAdapter(List<Friends> friendlist){
         mfriends = friendlist;
+        position = mfriends.size();
     }
     @Override
     public FriendsListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -50,5 +53,15 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
     public int getItemCount()
     {
         return mfriends.size();
+    }
+    //yuyisummer
+    public void addItem(String user_id,String name){
+        Log.e("FriendsListAdapterr","引用成功");
+        Friends user  = new Friends();
+        user.setUser_id(user_id);
+        user.setName(name);
+        mfriends.add(position,user);
+        position++;
+        notifyItemInserted(position);
     }
 }

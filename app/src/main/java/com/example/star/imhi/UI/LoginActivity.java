@@ -254,6 +254,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             final OkHttpClient okHttpClient = new OkHttpClient().newBuilder().build();
             Request request;
             if (Mobile.length() == 11)
+                //head("token",指定的token)
                 request = new Request.Builder().get().url(getString(R.string.postUrl) + "api/user/" + Mobile + "/" + md5password).build();
             else
                 request = new Request.Builder().get().url(getString(R.string.postUrl) + "api/user/id/" + Mobile + "/" + md5password).build();
@@ -288,7 +289,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     SharedPreferences share = getSharedPreferences("userInfo", Context.MODE_PRIVATE);// 私有方式获取
                                     SharedPreferences.Editor edit = share.edit();
                                     edit.putString("userId", user.getUserId() + "");
-                                    edit.putString("userPassword", user.getUserPassword()); // 用户密码
+                                    edit.putString("token", user.getUserPassword()); // 用户密码
                                     edit.commit();
                                     // 作为token认证
 
@@ -357,7 +358,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                                 Log.e("LoginAcitvity","cursor num" + cursor.getCount());
                                                 if(cursor.getCount() == 0)
                                               {
-
                                                   values.put("user_id",userid);
                                                long retval =  db.insert("Friends",null,values);
 
@@ -373,19 +373,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                             }
                                             SharedPreferences share = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);// 私有方式获取
                                             SharedPreferences.Editor edit = share.edit();
-                                           // JSONObject jsonObject = new JSONObject(map);
                                             Gson gson = new Gson();
                                             String jsonStr = gson.toJson(map);
-                                           // edit.putString("friendlist", String.valueOf(jsonObject));
                                             edit.putString("friendlist", jsonStr);
-                                            Log.e("login+friendlist",jsonStr);
                                             edit.commit();
 
-
-                                           // Log.e("LoginActivity",list.toString());
-
-                                            //这里应该做一步
-                                          //  Log.e("LoginAcitivty", responseData);
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         } catch (JSONException e) {
@@ -394,13 +386,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     }
                                 }).start();
 
+/*
+                                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                                Cursor cursor;
+                                int old_id ;
+                                cursor  = db.query("message", new String[]{"max(message_id)"},"message_type=?", new String[]{"8","9","10"},null,null,null);
 
+                                if(cursor.getCount() == 0) {
+                                    old_id = 0;
 
-
-
-
-
-
+                                } else{
+                                    old_id = cursor.getColumnIndex("messgage_id");
+                                }
+*/
+//拉取离线信息
 
 
                                 SharedPreferences sp = getSharedPreferences("info", Context.MODE_PRIVATE);
@@ -413,13 +412,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 // Date dt = new Date();
                                 //  intent.putExtra("login_date",dt.toLocaleString());
                                 //传入token，测试
-                                intent.putExtra("token", "假装有");
-                                //进行socket通信
-                                /*
-                                Intent in = new Intent(LoginActivity.this, MyService.class);
-                                Log.e("LoginActivity", "进行MyService");
-                                startService(in);
-                                */
+
                                 startActivity(intent);
                                 finish();
                             } else if (finalUser == null) {

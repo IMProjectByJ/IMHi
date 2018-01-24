@@ -20,7 +20,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
             + "birth text,"
             + "motto text)";
     public  static  final  String CREATE_History_message = "create table history_message ("
-            + "user_id integer, "
+            + "user_from_id integer, "
             + "to_id integer,"
             + "text_type integer,"
             + "message_id integer  primary key,"
@@ -37,6 +37,13 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
             + "member_id text,"
             + "group_membership text,"
             + "primary key(group_id,member_id))";
+    public static final  String  CREATE_NumInfo = "create table NumInfo ("
+            + "user_id integer,"
+            + "friend_type text,"
+            + "friend_id integer,"
+            + "new_id integer,"
+            + "old_id integer,"
+            + "primary key(user_id,friend_id,friend_type))";
 
     private  Context mcontext;
 
@@ -51,6 +58,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
         db.execSQL(CREATE_History_message);
         db.execSQL(CREATE_GroupChat);
         db.execSQL(CREATE_GroupUser);
+        db.execSQL(CREATE_NumInfo);
         Toast.makeText(mcontext,"Create success",Toast.LENGTH_SHORT).show();
     }
 

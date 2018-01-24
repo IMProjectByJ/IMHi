@@ -48,14 +48,6 @@ public class tab1Fragment  extends android.support.v4.app.Fragment implements Vi
 
         return view;
     }
-    /*
-    public void addlist(String fromwhoh,String what){
-        ChatList user = new ChatList(fromwhoh,what);
-        chat_List.add(user);
-        recyclerView.setAdapter(adapter);
-
-    }
-    */
     @Override
     public void onClick(View v) {
     }

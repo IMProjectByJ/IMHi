@@ -27,11 +27,10 @@ public class ChatList {
     }
 
     private  String nikname;
-    public ChatList(String fromwho,int type,String whatcontext,Integer old_id,String nikname) {
+    public ChatList(String fromwho,int type,String whatcontext,String nikname) {
         this.fromwho = fromwho;
         this.type = type;
         this.whatcontext = whatcontext;
-        this.old_id = old_id;
         this.nikname = nikname;
         //    this.imageid = imageid;
     }

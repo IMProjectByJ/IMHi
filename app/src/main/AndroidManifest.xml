@@ -44,6 +44,7 @@
         <activity android:name=".UI.MainActivity"/>
         <service android:name=".mina.MyService"/>
         <activity android:name=".UI.HomepageActivity"/>
+        <activity android:name=".activity.Notice"/>
 
 
 

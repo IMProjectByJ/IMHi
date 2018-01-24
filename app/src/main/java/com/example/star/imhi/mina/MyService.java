@@ -57,7 +57,7 @@ public class MyService extends Service {
 //                    .setConnectionTimeout(10)
 //                    .builder();
             ConnectionConfig config = new ConnectionConfig.Builder(context)
-                    .setIp("192.168.1.106" )
+                    .setIp("192.168.43.23" )
                     .setPort(8888)
                     .setReadBufferSize(2048)
                     .setConnectionTimeout(10)

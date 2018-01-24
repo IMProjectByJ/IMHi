@@ -21,7 +21,7 @@ import java.util.Map;
 public class MyHandler extends IoHandlerAdapter {
     private Context mContext;
 
-    MyHandler(Context context){
+    MyHandler(Context context) {
         this.mContext = context;
     }
 
@@ -29,29 +29,42 @@ public class MyHandler extends IoHandlerAdapter {
     public void sessionOpened(IoSession session) throws Exception {
         super.sessionOpened(session);
     }
-//接收信息
+
+    //接收信息
     @Override
     public void messageReceived(IoSession session, Object message) throws Exception {
-        Log.e("MyHandler",message.toString());
+        Log.e("MyHandler", message.toString());
         Intent intent = new Intent("com.bs.myMsg");
         String textcontent = "";
 
-        JSONObject  jsonObject = new JSONObject(message.toString());
-        String type =  jsonObject.getString("message_type");
-        Log.e("测试","测试能否进行直接转换");
-        Log.e("测试",jsonObject.toString());
+        JSONObject jsonObject = new JSONObject(message.toString());
+        String type = jsonObject.getString("message_type");
+        Log.e("测试", "测试能否进行直接转换");
+        Log.e("测试", jsonObject.toString());
+
         switch (type) {
-            case  "7":
+            case "2":
+            case "3":
+                Log.e("测试消息type2,3", message.toString());
                 textcontent = jsonObject.getString("textcontent");
-                intent.putExtra("textcontent",textcontent);
+                intent.putExtra("textcontent", textcontent);
+                break;
+
+            case "6":
+                break;
+            case "7":
+                textcontent = jsonObject.getString("textcontent");
+                intent.putExtra("textcontent", textcontent);
 
                 break;
             case "8":
-                intent.putExtra("textcontent",message.toString());
+            case "9":
+                Log.e("测试消息type8", message.toString());
+                textcontent = jsonObject.getString("textcontent");
+                intent.putExtra("textcontent", textcontent);
                 break;
 
         }
-
 
 //yuyisummer 进行准备阶段
 
@@ -66,9 +79,9 @@ public class MyHandler extends IoHandlerAdapter {
 //                Log.e("输出key",String.valueOf(entry.getKey()));
 //            }
 //        }
-      //  Log.e("MyHandler",jsonObject.toString());
+        //  Log.e("MyHandler",jsonObject.toString());
 
-        if(mContext != null){
+        if (mContext != null) {
             intent.putExtra("message_type", type);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
         }
@@ -76,13 +89,13 @@ public class MyHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void messageSent(IoSession session, Object message)  {
+    public void messageSent(IoSession session, Object message) {
         try {
             super.messageSent(session, message);
         } catch (Exception e) {
-            Log.e("MyHandler","发送失败");
+            Log.e("MyHandler", "发送失败");
             e.printStackTrace();
         }
-        Log.e("ceshi","发送成功");
+        Log.e("ceshi", "发送成功");
     }
 }

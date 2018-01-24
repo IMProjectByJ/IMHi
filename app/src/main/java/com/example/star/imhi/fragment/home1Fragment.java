@@ -82,46 +82,14 @@ public class home1Fragment extends android.support.v4.app.Fragment {
             e.printStackTrace();
         }
 
-
-
-
-
-/*
-        for(Map.Entry entry : content.entrySet()) {
-            Friends user = new Friends();
-            String user_id = String.valueOf(entry.getKey());
-            user.setUser_id(user_id);
-            user.setName(content.get(user_id).toString());
-            //这里需要去服务器取数据，有多少条信息没读
-            //user.setOffline_msg();
-            friends_List.add(user);
-        }
-*/
         recyclerView = (RecyclerView) view .findViewById(R.id.haoyourecyfriendslist);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.getActivity(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new FriendsListAdapter(friends_List);
-       // Fri
-        // ends user = new Friends("张三",R.drawable.smile);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        /*
-        for(Map.Entry entry : content.entrySet()){
-            Friends user = new Friends();
-            String user_id = String.valueOf(entry.getKey());
-            user.setUser_id(user_id);
-            Cursor cursor;
-            cursor = db.query("Friends",null,"user_id=?", new String[]{user_id},null,null,null);
-            cursor.moveToFirst();
-            cursor.getString(cursor.getColumnIndex("nikname"));
-            user.setName(cursor.getString(cursor.getColumnIndex("nikname")));
-            friends_List.add(user);
-            Log.e("输出key",String.valueOf(entry.getKey()));
-        }
-        */
-      //  Friends user = new Friends("10001","小小小小郁",0);
-       // friends_List.add(user);
         recyclerView.setAdapter(adapter);
-
         return view;
+    }
+    public FriendsListAdapter getAdapter(){
+        return this.adapter;
     }
 }

@@ -1,5 +1,7 @@
 package com.example.star.imhi.mina;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.apache.mina.core.session.IoSession;
@@ -27,23 +29,7 @@ public class SessionManager {
     public void writeMag(JSONObject info)  {
         Log.e("SessionManager","准备发送");
         if(session !=null){
-           // JSONArray jsonArray = new JSONArray();
             session.write(info);
-           // session.write(jsonArray);
-            //测试添加好友
-            /*
-            JSONObject info1 = new JSONObject();
-            try {
-                info1.put("from","10001");
-                info1.put("to","10002");
-                info1.put("type","8");
-                info1.put("texttype","1");
-                info1.put("textcontent","你好");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            session.write(info1);
-            */
         } else
             Log.e("SessionManager","session is null");
     }

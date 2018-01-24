@@ -8,7 +8,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
+import android.os.*;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import com.example.star.imhi.BaseActivity;
 import com.example.star.imhi.DAO.pojo.ChatList;
 import com.example.star.imhi.DAO.pojo.Friends;
+import com.example.star.imhi.DAO.pojo.HistoryMessage;
 import com.example.star.imhi.DAO.pojo.Numinfo;
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
@@ -49,11 +51,21 @@ import com.example.star.imhi.mina.MyService;
 import com.example.star.imhi.mina.Protocol;
 import com.example.star.imhi.mina.SessionManager;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
+import net.sf.json.JSON;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -85,31 +97,55 @@ public class StartActivity extends BaseActivity {
     private tab2Fragment tab2Fragment;
     private home1Fragment home1Fragment;
     private home2Fragment home2Fragment;
-    // int initFlag = 1;
     //yuyisummer
     String loginUser;
     Map<String, Numinfo> localofflist = new HashMap<>();
 
+    private Handler hander = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+
+            JSONObject jsonObject = null;
+            String type = null;
+            try {
+                jsonObject = new JSONObject((String) msg.obj);
+                type = jsonObject.getString("friend_type");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            switch (type) {
+                case "1":
+                case "3":
+                    try {
+                        tab1Fragment.getAdapter().addItem(jsonObject.getString("friend_id"),
+                                jsonObject.getInt("friend_type"),
+                                jsonObject.getString("message_num"),
+                                "暂时没有"
+                        );
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_start);
-
 //yuyisummer
         dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
         dbHelper.getWritableDatabase();
-
         Intent intent = getIntent();
         loginUser = intent.getStringExtra("loginUser");
         MsgReceiver msgReceiver = new MsgReceiver();
         IntentFilter filter = new IntentFilter("com.bs.myMsg");
         LocalBroadcastManager.getInstance(StartActivity.this).registerReceiver(msgReceiver, filter);
-
         Intent in = new Intent(StartActivity.this, MyService.class);
         Log.e("LoginActivity", "进行MyService");
         startService(in);
-
     }
 
     //标题栏菜单
@@ -247,44 +283,117 @@ public class StartActivity extends BaseActivity {
     class MsgReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            SQLiteDatabase db;
+            db = dbHelper.getWritableDatabase();
             Log.e("ceshi", "获得到了数据");
             String message_type = intent.getStringExtra("message_type");
-            Gson gson = null;
+            Gson gson = new Gson();
+
             Log.e("HomepageAcitivty", message_type);
+            Cursor cursor = null;
+            Cursor oldIdCursor = null;
             switch (message_type) {
+                case "2":
+                case "3":
+                    String str1 = intent.getStringExtra("textcontent");
+                    System.out.println("type2需要的str" + str1);
+                    HistoryMessage historyMessage2 = new HistoryMessage();
+                    historyMessage2 = gson.fromJson(str1, HistoryMessage.class);
+                    savethehistroy(historyMessage2);
+                    Log.e("type case2", str1);
+
+                    JSONObject type2_str = null;
+                    try {
+                        type2_str = new JSONObject(str1);
+                        int message_type1 = type2_str.getInt("messageType");
+                        int friendtype = 0;
+                        String whatcontext = "1";
+                        String userFormId = "";
+                        userFormId = type2_str.getString("userFromId");
+                        if (message_type1 == 2) {
+                            friendtype = 1;
+                        } else if (message_type1 == 3) {
+                            friendtype = 2;
+                        }
+                        tab1Fragment.getAdapter().addItem(userFormId
+                                , friendtype,
+                                whatcontext, "暂无");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+
                 case "6":
                     //gb  setContentView(R.layout.activity_home_page);
                     denglu();
                     break;
                 case "7":
                     Log.e("HomepageAcitivy", "7");
-                    /*
-                    Gson gson = new Gson();
-                    Protocol protocol = gson.fromJson(intent.getStringExtra("friendstr"), Protocol.class);
-                    Map<String,Integer> content = (Map<String, Integer>) protocol.getTextcontent();
-                    */
                     String textcontent = intent.getStringExtra("textcontent");
                     Map<String, Numinfo> content = new HashMap<String, Numinfo>();
                     List<ChatList> chat_List = new ArrayList<>();
-                    // ChatList chatList = new ChatList();
-                    ChatList chatList;
-                    gson = new Gson();
+
+                    JSONObject jsonObject;
+
                     try {
-                        JSONObject jsonObject = new JSONObject(textcontent);
+                        jsonObject = new JSONObject(textcontent);
                         Iterator<String> keyIter = jsonObject.keys();
                         String key;
                         Numinfo numinfo;
+
+                        int message_num = 0;
                         while (keyIter.hasNext()) {
+                            //  Log.e("start,type7",keyIter.next());
                             key = keyIter.next();
                             numinfo = gson.fromJson(jsonObject.get(key).toString(), Numinfo.class);
                             content.put(key, numinfo);
-                            //这里还要区分群和普通好友，好友请求（未完成）
-                            chatList = new ChatList();
-                            chatList.setFromwho(key);
-                            chatList.setWhatcontext(numinfo.getFriendType());
-                            chat_List.add(position, chatList);
-                            position++;
 
+                            String[] fromwho = key.split("\\|");
+
+                            if (fromwho[1].equals("1")) {
+                                oldIdCursor = db.query("history_message", new String[]{"max(message_id)"}, "message_type=?", new String[]{"2"}, null, null, null);
+                            } else if (fromwho[1].equals("2")) {
+                                oldIdCursor = db.query("history_message", new String[]{"max(message_id)"}, "message_type=?", new String[]{"2"}, null, null, null);
+                            } else if (fromwho[1].equals("3")) {
+                                oldIdCursor = db.query("history_message", new String[]{"max(message_id)"}, "message_type=? or message_type=? or message_type=?", new String[]{"8", "9", "10"}, null, null, null);
+                            }
+
+                            int old_id;
+                            oldIdCursor.moveToFirst();
+                            if (oldIdCursor.getCount() == 0) {
+                                System.out.println("oldcursor    0");
+                                old_id = 0;
+                            } else {
+                                System.out.println("oldcursor    " + oldIdCursor.getCount());
+                                old_id = oldIdCursor.getColumnIndex("max(message_id)");
+                                System.out.println("oldcursor    不为0 为：" + oldIdCursor.getCount());
+                            }
+                            //这句话测试是否有错误
+                            //  jsonObject.put("oldId", old_id);
+
+                            ContentValues values = new ContentValues();
+                            values.put("user_id", numinfo.getUserId());
+                            values.put("friend_type", numinfo.getFriendType());
+                            values.put("friend_id", numinfo.getFriendId());
+                            values.put("new_id", numinfo.getNewId());
+                            values.put("old_id", old_id);
+                            cursor = db.query("NumInfo", new String[]{"friend_id"},
+                                    "user_id=? and friend_id=? and friend_type=?",
+                                    new String[]{String.valueOf(numinfo.getUserId()), String.valueOf(numinfo.getFriendId())
+                                            , numinfo.getFriendType()}, null, null, null);
+                            if (cursor.getCount() == 0) {
+                                long retval = db.insert("NumInfo", null, values);
+
+                                if (retval == -1)
+                                    Log.e("StartActivity", "failed");
+                                else
+                                    Log.e("StartActivity", "success " + retval);
+                            } else {
+                                int update = db.update("NumInfo", values, "user_id=? and friend_id=? and friend_type=?",
+                                        new String[]{String.valueOf(numinfo.getUserId()), String.valueOf(numinfo.getFriendId())
+                                                , numinfo.getFriendType()});
+                                Log.e("LoginAcitivity", "update " + update);
+                            }
                         }
                         localofflist = content;
                     } catch (JSONException e) {
@@ -294,21 +403,137 @@ public class StartActivity extends BaseActivity {
 
                     init();
 
+                    //开始一个一个增加
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            OkHttpClient client = new OkHttpClient();
+                            dbHelper.getReadableDatabase();
+                            SQLiteDatabase db = dbHelper.getReadableDatabase();
+                            Cursor numinfo_cursor = null;
+                            JSONObject jsonObject = new JSONObject();
+                            SharedPreferences preferences = getSharedPreferences("userInfo", Context.MODE_PRIVATE);
+                            String user_id = preferences.getString("userId", "0");
+                            System.out.println("userId" + user_id)
+                            ;
+                            numinfo_cursor = db.query("NumInfo", new String[]{"user_id", "friend_type", "friend_id", "new_id", "old_id"},
+                                    "user_id=?",
+                                    new String[]{user_id}, null, null, null);
+                            numinfo_cursor.moveToFirst();
+                            Log.e("cursor     ", String.valueOf(numinfo_cursor.getCount()));
+                            //  if (numinfo_cursor!=null ) {
+                            if (numinfo_cursor.getCount() != 0) {
+                                //  numinfo_cursor.moveToFirst();
+                                Log.e("cursor", "is not null");
+                                do {
+                                    try {
+
+                                        jsonObject.put("friend_type", numinfo_cursor.getString(numinfo_cursor.getColumnIndex("friend_type")));
+                                        jsonObject.put("friend_id", numinfo_cursor.getString(numinfo_cursor.getColumnIndex("friend_id")));
+                                        jsonObject.put("new_id", numinfo_cursor.getString(numinfo_cursor.getColumnIndex("new_id")));
+                                        jsonObject.put("old_id", numinfo_cursor.getString(numinfo_cursor.getColumnIndex("old_id")));
+                                        jsonObject.put("user_id", numinfo_cursor.getString(numinfo_cursor.getColumnIndex("user_id")));
+                                        Request request;
+                                        String str = jsonObject.toString();
+                                        request = new Request.Builder().url(getString(R.string.postUrl)
+                                                + "api/numinfo/register/" + str).get().build();
+                                        try {
+                                            Response response = client.newCall(request).execute();
+                                            String responseData = response.body().string();
+
+                                            Gson gson = new Gson();
+                                            Log.e("startActivity response", responseData);
+                                            List<HistoryMessage> list = gson.fromJson(responseData, new TypeToken<List<HistoryMessage>>() {
+                                            }.getType());
+
+                                            Cursor cursor1;
+                                            for (i = 0; i < list.size(); i++) {
+                                                HistoryMessage historyMessage = list.get(i);
+                                                ContentValues values = new ContentValues();
+                                                values.put("user_from_id", historyMessage.getUserFromId());
+                                                values.put("to_id", historyMessage.getToId());
+                                                values.put("text_type", historyMessage.getTextType());
+                                                values.put("message_id", historyMessage.getMessageId());
+                                                values.put("message_type", historyMessage.getMessageType());
+                                                values.put("text_content", historyMessage.getTextContent());
+                                                values.put("date", String.valueOf(historyMessage.getDate()));
+                                                cursor1 = db.query("history_message", new String[]{"message_id"},
+                                                        "message_id=?",
+                                                        new String[]{String.valueOf(historyMessage.getMessageId())}, null, null, null);
+                                                if (cursor1.getCount() == 0) {
+                                                    long retval = db.insert("history_message", null, values);
+
+                                                    if (retval == -1)
+                                                        Log.e("history_message", "failed");
+                                                    else
+                                                        Log.e("history_message", "success " + retval);
+                                                    //  Log.e("history_message已存在", String.valueOf(historyMessage.getMessageId()));
+                                                }
+                                            }
+                                            int num = list.size();
+                                            if (num != 0) {
+                                                Numinfo numinfo1 = new Numinfo();
+                                                Message msg = hander.obtainMessage();
+                                                jsonObject.put("message_num", num);
+                                                msg.obj = jsonObject.toString();
+                                                hander.sendMessage(msg);
+                                            }
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                } while (numinfo_cursor.moveToNext());
+                            }
+                        }
+                    }).start();
+
                     break;
                 case "8":
+                case "9":
+                    HistoryMessage historyMessage = new HistoryMessage();
+                    historyMessage = gson.fromJson(intent.getStringExtra("textcontent"), HistoryMessage.class);
+//                    System.out.println(historyMessage.getMessageId() + "  "
+//                            + historyMessage.getToId() + " " + historyMessage.getMessageType()
+//                            + " " + historyMessage.getUserFromId()
+//                            + " " + historyMessage.getTextType()
+//                            + " " + historyMessage.getTextContent()
+//                            + " " + historyMessage.getDate());
+                    Log.e("type:8", "开始存储信息type8");
+                    savethehistroy(historyMessage);
+                    Log.e("type:8", "结束存储信息type8");
+
                     Log.e("HomepageActivity", "8");
 
-                    String str = intent.getStringExtra("textcontent");
-                    Log.e("start+type8", str);
-                    Numinfo numinfo = gson.fromJson(str, Numinfo.class);
-                    SQLiteDatabase db = dbHelper.getWritableDatabase();
-                    // Cursor cursor;
-                    // String friend_id = String.valueOf(numinfo.getFriendId());
-                    //cursor = db.query("Friends", new String[]{"user_id"},"user_id=?", new String[]{String.valueOf(friend_id)},null,null,null);
+                    JSONObject str = null;
+                    try {
+                        str = new JSONObject(intent.getStringExtra("textcontent"));
+                        int message_type1 = str.getInt("messageType");
+                        int friendtype = 0;
+                        String whatcontext = "1";
+                        String userFormId = "";
+                        userFormId = str.getString("userFromId");
+                        if (message_type1 == 8) {
+                            friendtype = 3;
+                            userFormId = "9999";
+                        } else if (message_type1 == 9) {
+                            friendtype = 3;
+                            userFormId = "9999";
+                        } else if (message_type1 == 2) {
+                            friendtype = 1;
+                        } else if (message_type1 == 3) {
+                            friendtype = 2;
+                        }
 
-                    tab1Fragment.getAdapter().addItem(String.valueOf(numinfo.getFriendId())
-                            , Integer.valueOf(numinfo.getFriendType()),
-                            "1", numinfo.getOldId(), "通知");
+                        tab1Fragment.getAdapter().addItem(userFormId
+                                , friendtype,
+                                whatcontext, "暂无");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("type8需要的str" + str);
                     break;
             }
         }
@@ -363,5 +588,33 @@ public class StartActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         finish();
+        System.exit(0);
     }
+
+    public void savethehistroy(HistoryMessage historyMessage) {
+        SQLiteDatabase db;
+        db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("user_from_id", historyMessage.getUserFromId());
+        values.put("to_id", historyMessage.getToId());
+        values.put("text_type", historyMessage.getTextType());
+        values.put("message_id", historyMessage.getMessageId());
+        values.put("message_type", historyMessage.getMessageType());
+        values.put("text_content", historyMessage.getTextContent());
+        values.put("date", String.valueOf(historyMessage.getDate()));
+        Cursor cursor;
+        cursor = db.query("history_message", new String[]{"message_id"},
+                "message_id=?",
+                new String[]{String.valueOf(historyMessage.getMessageId())}, null, null, null);
+        if (cursor.getCount() == 0) {
+            long retval = db.insert("history_message", null, values);
+
+            if (retval == -1)
+                Log.e("history_message", "failed");
+            else
+                Log.e("history_message", "success " + retval);
+            //  Log.e("history_message已存在", String.valueOf(historyMessage.getMessageId()));
+        }
+    }
+
 }
