@@ -19,4 +19,11 @@
     <color name="gray">#f7f6f6</color>
     <color name="bg_gray">#ededed</color>
     <color name="hint_color">#b2b2b2</color>
+
+
+    <color name="chat_title_bg">#2095EB</color>
+    <color name="google_red">#FFC93437</color>
+    <color name="google_blue">#FF375BF1</color>
+    <color name="google_yellow">#FFF7D23E</color>
+    <color name="google_green">#FF34A350</color>
 </resources>

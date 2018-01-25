@@ -14,8 +14,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.*;
-import android.os.Message;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -48,6 +46,7 @@ import com.example.star.imhi.DAO.pojo.HistoryMessage;
 import com.example.star.imhi.DAO.pojo.Numinfo;
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
+import com.example.star.imhi.Utils.Chating;
 import com.example.star.imhi.Utils.FileOperateService;
 import com.example.star.imhi.Utils.FileUtils;
 import com.example.star.imhi.Utils.OkHttpUtils;
@@ -62,22 +61,12 @@ import com.example.star.imhi.mina.MyService;
 import com.example.star.imhi.mina.SessionManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
 
-import net.sf.json.JSON;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -121,64 +110,34 @@ public class StartActivity extends BaseActivity {
     SharedPreferences.Editor editor;
     private static final String PREFERENCE_NAME = "userInfo";
     private ImageView headImg;
-    private String  token;
+    private String token;
     private TextView tNi;
     private TextView tAge;
     private TextView tBirth;
-
+    //yuyisummer
+    private  String strange;
     private Handler hander = new Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
 
             JSONObject jsonObject = null;
-            String type = null;
+            String friendtype = null;
             try {
                 jsonObject = new JSONObject((String) msg.obj);
-                type = jsonObject.getString("friend_type");
+                friendtype = jsonObject.getString("friend_type");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            switch (type) {
+            switch (friendtype) {
                 case "1":
+                case "2":
                 case "3":
                     try {
-                        tab1Fragment.getAdapter().addItem(jsonObject.getString("friend_id"),
-                                jsonObject.getInt("friend_type"),
-                                jsonObject.getString("message_num"),
-                                jsonObject.getInt("old_id"),
-                                "暂时没有"
-                        );
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-            }
-        }
-    };
-
-    private Handler hander = new Handler() {
-        @Override
-        public void handleMessage(android.os.Message msg) {
-
-            JSONObject jsonObject = null;
-            String type = null;
-            try {
-                jsonObject = new JSONObject((String) msg.obj);
-                type = jsonObject.getString("friend_type");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            switch (type) {
-                case "1":
-                case "3":
-                    try {
-                        tab1Fragment.getAdapter().addItem(jsonObject.getString("friend_id"),
-                                jsonObject.getInt("friend_type"),
-                                jsonObject.getString("message_num"),
-                                "暂时没有"
-                        );
+                        String friendid = jsonObject.getString("friend_id");
+                        Log.e("Handler","AddChatItem");
+                        AddChatItem(friendtype,friendid, jsonObject.getString("new_id"),
+                                jsonObject.getString("message_num"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -199,16 +158,16 @@ public class StartActivity extends BaseActivity {
         sp = getSharedPreferences(PREFERENCE_NAME, Activity.MODE_PRIVATE);
         editor = sp.edit();
         token = sp.getString("token", "");
-        headImg = (ImageView)findViewById(R.id.head_image);
+        headImg = (ImageView) findViewById(R.id.head_image);
         tNi = (TextView) findViewById(R.id.nicheng);
-        tAge = (TextView)findViewById(R.id.tAge);
-        tBirth = (TextView)findViewById(R.id.tBirth);
+        tAge = (TextView) findViewById(R.id.tAge);
+        tBirth = (TextView) findViewById(R.id.tBirth);
 
-        Log.e("token",token);
-        Log.e("-------token:", token+"is null?");
+        Log.e("token", token);
+        Log.e("-------token:", token + "is null?");
 //yuyisummer
         dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
-        dbHelper.getWritableDatabase();
+        //   dbHelper.getWritableDatabase();
         Intent intent = getIntent();
         loginUser = intent.getStringExtra("loginUser");
         MsgReceiver msgReceiver = new MsgReceiver();
@@ -218,9 +177,7 @@ public class StartActivity extends BaseActivity {
         Log.e("LoginActivity", "进行MyService");
         startService(in);
 
-
         personMsg(loginUser);
-
 
 //        Log.e("image_url:", sp.getString("image_url", "TEST!!!!!!!!!!!!!!!"));
 //        Bitmap bm = BitmapFactory.decodeFile(sp.getString(loginUser,""));
@@ -236,7 +193,6 @@ public class StartActivity extends BaseActivity {
 //            responseServert(responseUrl);
 //        }
     }
-
 
     //标题栏菜单
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -300,12 +256,12 @@ public class StartActivity extends BaseActivity {
 
     }
 
-    public void personMsg(final String userId){
+    public void personMsg(final String userId) {
         personMsgRequest(userId);
 
     }
 
-    public void responseServert(final String Url){
+    public void responseServert(final String Url) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -317,10 +273,10 @@ public class StartActivity extends BaseActivity {
                 try {
                     Response response = okHttpClient.newCall(request).execute();
                     File file = fileUtils.createFileInSDCard(user.getPhoneNum(), user.getUserId().toString());
-                    File file1 = FileOperateService.saveFile(response, user.getPhoneNum()+".jpg", file.getAbsolutePath());
+                    File file1 = FileOperateService.saveFile(response, user.getPhoneNum() + ".jpg", file.getAbsolutePath());
 
                     if (file1 == null) {
-                        Log.e("file1?", "file1 is null" );
+                        Log.e("file1?", "file1 is null");
                         //Log.e("-------file1:", file1.getAbsolutePath());
                         runOnUiThread(new Runnable() {
                             @Override
@@ -333,7 +289,7 @@ public class StartActivity extends BaseActivity {
                         final Bitmap bm1 = BitmapFactory.decodeFile(file1.getAbsolutePath());//                    Log.e("--------ResponseBody:", file );
 
                         if (bm1 == null) {
-                            Log.e("-----------Bitmap1111:?", "Bitmap is null" );
+                            Log.e("-----------Bitmap1111:?", "Bitmap is null");
                             //Log.e("-----------Bitmap1111:", bm1.toString());
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -345,7 +301,7 @@ public class StartActivity extends BaseActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Log.e("bm1-----:", bm1.toString() );
+                                    Log.e("bm1-----:", bm1.toString());
                                     headImg.setImageBitmap(bm1);
                                     //headImg.setImageResource(R.drawable.woman);
                                 }
@@ -361,7 +317,7 @@ public class StartActivity extends BaseActivity {
 
     }
 
-    public void personMsgRequest(final String userId){
+    public void personMsgRequest(final String userId) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -369,7 +325,7 @@ public class StartActivity extends BaseActivity {
                 Request request;
                 request = new Request.Builder().get().url(getString(R.string.postUrl) + "api/user/details/" + userId).build();
 
-                try{
+                try {
                     Response response = okHttpClient.newCall(request).execute();
                     String responseData = response.body().string();
 
@@ -377,17 +333,17 @@ public class StartActivity extends BaseActivity {
                     JSONObject jsonObject = new JSONObject(responseData);
 
                     if (jsonObject.optString("err") == "") {
-                        Gson gson  = new Gson();
-                        user = gson.fromJson(responseData,User.class);
-                        Log.e("details:",user.toString() );
+                        Gson gson = new Gson();
+                        user = gson.fromJson(responseData, User.class);
+                        Log.e("details:", user.toString());
                     }
 
                     //头像
                     Log.e("image_url:", sp.getString("image_url", "TEST!!!!!!!!!!!!!!!"));
-                    final Bitmap bm = BitmapFactory.decodeFile(sp.getString(loginUser,""));
+                    final Bitmap bm = BitmapFactory.decodeFile(sp.getString(loginUser, ""));
 
                     if (bm != null) {
-                        Log.e("-----------Bitmap:", "bitmap is not null" );
+                        Log.e("-----------Bitmap:", "bitmap is not null");
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -397,9 +353,9 @@ public class StartActivity extends BaseActivity {
 
                         //headImg.setImageResource(R.drawable.man);
                     } else {
-                        Log.e("-----------Bitmap:", "bitmap is null" );
+                        Log.e("-----------Bitmap:", "bitmap is null");
 
-                        String responseUrl = getString(R.string.postUrl)+"/api/imageOperate/imageDownload";
+                        String responseUrl = getString(R.string.postUrl) + "/api/imageOperate/imageDownload";
                         responseServert(responseUrl);
                     }
 
@@ -411,7 +367,7 @@ public class StartActivity extends BaseActivity {
                         }
                     });
 
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -513,21 +469,38 @@ public class StartActivity extends BaseActivity {
                     Log.e("type case2", str1);
 
                     JSONObject type2_str = null;
+
+//                    if (textcontent != null) {
+//                        JSONObject jsonObject1 = new JSONObject(textcontent);
+//                        String messagetype = jsonObject1.getString("messageType");
+//                        int userfromid = jsonObject1.getInt("userFromId");
+//                        Chating chating = new Chating();
+//                        if (messagetype.equals("2") && userfromid == chating.getChating()) {
+//                            intent.setAction("com.bs.showMsg");
+//                        }
+//                    }
+
                     try {
                         type2_str = new JSONObject(str1);
-                        int message_type1 = type2_str.getInt("messageType");
-                        int friendtype = 0;
-                        String whatcontext = "1";
                         String userFormId = "";
                         userFormId = type2_str.getString("userFromId");
-                        if (message_type1 == 2) {
-                            friendtype = 1;
-                        } else if (message_type1 == 3) {
-                            friendtype = 2;
+                        Chating chating = new Chating();
+                        if ( Integer.valueOf(userFormId) == chating.getChating()) {
+                            intent.setAction("com.bs.showMsg");
+                            sendBroadcast(intent);
                         }
-                        tab1Fragment.getAdapter().addItem(userFormId
-                                , friendtype,
-                                whatcontext, "暂无");
+
+                        int message_type1 = type2_str.getInt("messageType");
+                        String friendtype = "0";
+                        String newid = type2_str.getString("messageId");
+
+                        if (message_type1 == 2) {
+                            friendtype = "1";
+                        } else if (message_type1 == 3) {
+                            friendtype = "2";
+                        }
+                        Log.e("startacitvity","case 23");
+                        AddChatItem(friendtype, userFormId, newid, "1");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -653,9 +626,11 @@ public class StartActivity extends BaseActivity {
                                             String responseData = response.body().string();
 
                                             Gson gson = new Gson();
-                                            Log.e("startActivity response", responseData);
+                                            Log.e("start responseData", responseData);
+
                                             List<HistoryMessage> list = gson.fromJson(responseData, new TypeToken<List<HistoryMessage>>() {
                                             }.getType());
+
 
                                             Cursor cursor1;
                                             for (i = 0; i < list.size(); i++) {
@@ -668,6 +643,11 @@ public class StartActivity extends BaseActivity {
                                                 values.put("message_type", historyMessage.getMessageType());
                                                 values.put("text_content", historyMessage.getTextContent());
                                                 values.put("date", String.valueOf(historyMessage.getDate()));
+
+                                                if(historyMessage.getMessageType().equals("8")){
+                                                    FindStrangeInfo(String.valueOf(historyMessage.getUserFromId()));
+                                                }
+
                                                 cursor1 = db.query("history_message", new String[]{"message_id"},
                                                         "message_id=?",
                                                         new String[]{String.valueOf(historyMessage.getMessageId())}, null, null, null);
@@ -683,7 +663,7 @@ public class StartActivity extends BaseActivity {
                                             }
                                             int num = list.size();
                                             if (num != 0) {
-                                                Numinfo numinfo1 = new Numinfo();
+                                                //  Numinfo numinfo1 = new Numinfo();
                                                 Message msg = hander.obtainMessage();
                                                 jsonObject.put("message_num", num);
                                                 msg.obj = jsonObject.toString();
@@ -705,41 +685,27 @@ public class StartActivity extends BaseActivity {
                 case "9":
                     HistoryMessage historyMessage = new HistoryMessage();
                     historyMessage = gson.fromJson(intent.getStringExtra("textcontent"), HistoryMessage.class);
-//                    System.out.println(historyMessage.getMessageId() + "  "
-//                            + historyMessage.getToId() + " " + historyMessage.getMessageType()
-//                            + " " + historyMessage.getUserFromId()
-//                            + " " + historyMessage.getTextType()
-//                            + " " + historyMessage.getTextContent()
-//                            + " " + historyMessage.getDate());
                     Log.e("type:8", "开始存储信息type8");
                     savethehistroy(historyMessage);
                     Log.e("type:8", "结束存储信息type8");
-
-                    Log.e("HomepageActivity", "8");
 
                     JSONObject str = null;
                     try {
                         str = new JSONObject(intent.getStringExtra("textcontent"));
                         int message_type1 = str.getInt("messageType");
-                        int friendtype = 0;
-                        String whatcontext = "1";
+                        String friendtype = "0";
                         String userFormId = "";
+                        String newid = str.getString("messageId");
                         userFormId = str.getString("userFromId");
-                        if (message_type1 == 8) {
-                            friendtype = 3;
-                            userFormId = "9999";
-                        } else if (message_type1 == 9) {
-                            friendtype = 3;
+                        if (message_type1 == 8 || message_type1 == 9) {
+                            friendtype = "3";
                             userFormId = "9999";
                         } else if (message_type1 == 2) {
-                            friendtype = 1;
+                            friendtype = "1";
                         } else if (message_type1 == 3) {
-                            friendtype = 2;
+                            friendtype = "2";
                         }
-
-                        tab1Fragment.getAdapter().addItem(userFormId
-                                , friendtype,
-                                whatcontext, "暂无");
+                        AddChatItem(friendtype, userFormId, newid, "1");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -801,9 +767,10 @@ public class StartActivity extends BaseActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.imagePath.LOCAL_BROADCAST");
         LocalReceiver localReceiver = new LocalReceiver();
-        localBroadcastManager.registerReceiver(localReceiver,intentFilter);
+        localBroadcastManager.registerReceiver(localReceiver, intentFilter);
 
     }
+
     class LocalReceiver extends BroadcastReceiver {
 
         @Override
@@ -812,9 +779,9 @@ public class StartActivity extends BaseActivity {
             String name = intent.getStringExtra("userName");
             String age = intent.getStringExtra("userAge");
             String birth = intent.getStringExtra("userBirth");
-            Log.e("receive","#################"+a);
+            Log.e("receive", "#################" + a);
 
-            Log.e("userAge:", age + "age" );
+            Log.e("userAge:", age + "age");
 
             if (a != null && !a.equals("")) {
                 File file = new File(a);
@@ -870,20 +837,16 @@ public class StartActivity extends BaseActivity {
         }
     }
 
-
-
-
-
     //------------------------------------home键--------------------------------------
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_HOME){
-            Log.e("home键","*********");
-            Intent intenthome = new Intent(StartActivity.this,StartActivity.class);
-            PendingIntent pi =PendingIntent.getActivity(this,0,intenthome,0);
+        if (keyCode == KeyEvent.KEYCODE_HOME) {
+            Log.e("home键", "*********");
+            Intent intenthome = new Intent(StartActivity.this, StartActivity.class);
+            PendingIntent pi = PendingIntent.getActivity(this, 0, intenthome, 0);
             // 创建一个NotificationManager的引用
-            NotificationManager notificationManager = (NotificationManager)getSystemService(android.content.Context.NOTIFICATION_SERVICE);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(android.content.Context.NOTIFICATION_SERVICE);
             // 定义Notification的各种属性
             Notification notification = new Notification.Builder(this)
                     .setSmallIcon(R.mipmap.app)
@@ -898,8 +861,8 @@ public class StartActivity extends BaseActivity {
             return true;
         }
         //------------------------------back键------------------------------------------
-        if(keyCode==KeyEvent.KEYCODE_BACK){
-            Log.e("back键","#D########");
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Log.e("back键", "#D########");
             AlertDialog.Builder dialog = new AlertDialog.Builder(StartActivity.this);
             dialog.setTitle("Hi");
             dialog.setMessage("确定退出？");
@@ -919,6 +882,98 @@ public class StartActivity extends BaseActivity {
             dialog.show();
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    public String FindNikname(String user_id) {
+        //  dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
+        SQLiteDatabase db;
+        db = dbHelper.getReadableDatabase();
+        Cursor cursor;
+        cursor = db.query("Friends", new String[]{"nikname"},
+                "user_id=?", new String[]{String.valueOf(user_id)},
+                null, null, null);
+        Log.e("findnikname", String.valueOf(cursor.getCount()));
+        cursor.moveToFirst();
+        if (cursor.getCount() != 0)
+            return cursor.getString(cursor.getColumnIndex("nikname"));
+        else
+            return null;
+    }
+
+    public void AddChatItem(String friend_type, String friend_id, String new_id, String messagenum) {
+
+        String nikname = "";
+        switch (friend_type) {
+            case "1":
+                nikname = FindNikname(friend_id);
+                break;
+            case "2":
+                break;
+            case "3":
+                nikname = "申请通知";
+                break;
+        }
+        Log.e("startacitvity","AddChatItem");
+        tab1Fragment.getAdapter().addItem(friend_id, Integer.valueOf(friend_type),
+                Integer.valueOf(new_id), nikname, messagenum);
+    }
+    public void FindStrangeInfo(final String user_id){
+        strange = user_id;
+        if(FindNikname(strange) == null){
+
+           new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    OkHttpClient client = new OkHttpClient();
+
+                    Request request;
+                    request = new Request.Builder().url(getString(R.string.postUrl) + "api/user/add_search_by_uid/" + strange).build();
+                    try {
+                        Response response = client.newCall(request).execute();
+                        String responseData = response.body().string();
+                        JSONObject json = new JSONObject(responseData);
+                        String user_str = json.getString("add_search");
+                        System.out.println(user_str);
+
+                        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+                            JSONObject temp = new JSONObject(user_str);
+                            int userid = temp.getInt("userId");
+                            String phone_num = temp.getString("phoneNum");
+                            String nikname = temp.getString("nikname");
+                            System.out.println(userid + " " + phone_num + " " + nikname + " ");
+                            //进行数据库个人简单信息的插入
+                            ContentValues values = new ContentValues();
+                            values.put("user_id", userid);
+                            values.put("phone_num", phone_num);
+                            values.put("nikname", nikname);
+
+                            Cursor cursor;
+                            cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{strange}, null, null, null);
+                            if (cursor.getCount() == 0) {
+                                values.put("user_id", userid);
+                                long retval = db.insert("Friends", null, values);
+
+                                if (retval == -1)
+                                    Log.e("个人信息插入", "failed");
+                                else
+                                    Log.e("个人信息插入", "success " + retval);
+                            } else {
+
+                                int update = db.update("Friends", values, "user_id=?", new String[]{strange});
+                                Log.e("个人信息更新", "数量 " + update);
+                            }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+        }
     }
 
 }

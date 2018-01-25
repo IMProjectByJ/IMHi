@@ -58,6 +58,8 @@
         <activity android:name=".activity.Picture" />
         <activity android:name=".activity.ShowPicture" />
         <activity android:name=".activity.MainActivity" />
+        <activity android:name=".message.MessageListActivity"/>
+        <activity android:name=".message.VideoActivity"/>
         <activity
             android:name=".activity.Message"
             android:label="" />

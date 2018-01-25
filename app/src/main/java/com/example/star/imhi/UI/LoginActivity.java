@@ -106,8 +106,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private TextView tRegView;
     private SharedPreferences sp;
     private SharedPreferences.Editor editor;
-    private CheckBox rem ;
-    private CheckBox auto ;
+    private CheckBox rem;
+    private CheckBox auto;
     private List<User> list_user = new ArrayList<>();
     private Set<String> set_user;
     private UserAdapter userAdapter;
@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private ImageView delClose;
 
     //yuyisummer private  MyDatabaseHelper dbHelper;
-    private  MyDatabaseHelper dbHelper;
+    private MyDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,15 +148,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        for (String s:set_user) {
+        for (String s : set_user) {
             list_user.add(new User(s));
         }
-        userAdapter = new UserAdapter(LoginActivity.this,R.layout.adapter_user_item, list_user);
+        userAdapter = new UserAdapter(LoginActivity.this, R.layout.adapter_user_item, list_user);
         listView.setAdapter(userAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
-                delClose = (ImageView)findViewById(R.id.adapter_account_item_delete);
+                delClose = (ImageView) findViewById(R.id.adapter_account_item_delete);
                 User user = list_user.get(i);
                 mMobileView.setText(user.getPhoneNum());
                 listView.setVisibility(View.GONE);
@@ -197,20 +197,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         tforgetPasswdView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this,ForgetActivity.class);
+                Intent intent = new Intent(LoginActivity.this, ForgetActivity.class);
                 startActivity(intent);
             }
         });
 
         //yuyisummer 1.15创建数据库操作，测试
-        dbHelper = new MyDatabaseHelper(this,"FriendsStore.db",null,1);
+        dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
         dbHelper.getWritableDatabase();
         //yuyisummer 1.16创建Stetho
         sqlinit();
 
     }
 
-    public void listDown(){
+    public void listDown() {
         list_down = (ImageView) findViewById(R.id.list_down);
         list_down.setOnClickListener(new OnClickListener() {
             @Override
@@ -232,10 +232,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     //各成员变量初始化初始化
-    public void initUsers(){
+    public void initUsers() {
         sp = PreferenceManager.getDefaultSharedPreferences(this);
-        set_user = sp.getStringSet("users",new HashSet<String>());
-        listView = (ListView)findViewById(R.id.list_user);
+        set_user = sp.getStringSet("users", new HashSet<String>());
+        listView = (ListView) findViewById(R.id.list_user);
         rem = (CheckBox) findViewById(R.id.rem);
         auto = (CheckBox) findViewById(R.id.auto);
         delClose = (ImageView) findViewById(R.id.adapter_account_item_delete);
@@ -243,8 +243,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     //登录界面显示账号和密码
-    public void isSetPassword(){
-        if (sp.getBoolean("rememberPass", false)){
+    public void isSetPassword() {
+        if (sp.getBoolean("rememberPass", false)) {
             String count = sp.getString("userId", "");
             String passwd = sp.getString("userPassword", "");
             mMobileView.setText(count);
@@ -254,7 +254,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     //是否记住密码
-    public void setPassword(){
+    public void setPassword() {
         if (rem.isChecked()) {
             editor.putBoolean("rememberPass", true);
             editor.putString("userId", mMobileView.getText().toString());
@@ -263,7 +263,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             set_user.add(mMobileView.getText().toString());
             editor.putStringSet("users", set_user);
 
-            if (auto.isChecked()){
+            if (auto.isChecked()) {
                 editor.putBoolean("auto", true);
             }
 
@@ -401,6 +401,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 } else {
                                     Gson gson = new Gson();
                                     user = gson.fromJson(strJson, User.class);
+                                    InsertOwnInfo(user);
                                     SharedPreferences share = getSharedPreferences("userInfo", Context.MODE_PRIVATE);// 私有方式获取
                                     SharedPreferences.Editor edit = share.edit();
                                     edit.putString("userId", user.getUserId() + "");
@@ -432,10 +433,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     @Override
                                     public void run() {
                                         OkHttpClient client = new OkHttpClient();
-                                        String user_id = String .valueOf(finalUser.getUserId());
-                                        Log.e("finaluser",user_id);
+                                        String user_id = String.valueOf(finalUser.getUserId());
+                                        Log.e("finaluser", user_id);
                                         Request request;
-                                        request = new Request.Builder().url(getString(R.string.postUrl)+"api/user/find_friend_list/" + user_id).build();
+                                        request = new Request.Builder().url(getString(R.string.postUrl) + "api/user/find_friend_list/" + user_id).build();
                                         try {
                                             Response response = client.newCall(request).execute();
                                             String responseData = response.body().string();
@@ -447,44 +448,41 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //                                            Map<String,Integer> content = (Map<String, Integer>) protocol.getTextcontent();
 //                                              yuyisummer 测试直接转换json->list
                                             //Gson gson = new Gson();
-                                           // List<User> list =  new ArrayList<User>();
+                                            // List<User> list =  new ArrayList<User>();
                                             //JSONArray jsonArray = JSONArray.
 
                                             SQLiteDatabase db = dbHelper.getWritableDatabase();
                                             JSONArray arr = new JSONArray(user_str);
-                                            Log.e("LoginAcitivy","arr "+arr.length());
-                                            Map<String,String> map = new HashMap<>();
-                                            for(int i = 0 ;i<arr.length();i++){
+                                            Log.e("LoginAcitivy", "arr " + arr.length());
+                                            Map<String, String> map = new HashMap<>();
+                                            for (int i = 0; i < arr.length(); i++) {
                                                 JSONObject temp = (JSONObject) arr.get(i);
                                                 int userid = temp.getInt("userId");
-                                                 String phone_num = temp.getString("phoneNum");
-                                                 String nikname = temp.getString("nikname");
-                                                System.out.println(userid+" "+phone_num+" "+nikname+" ");
+                                                String phone_num = temp.getString("phoneNum");
+                                                String nikname = temp.getString("nikname");
+                                                System.out.println(userid + " " + phone_num + " " + nikname + " ");
                                                 //进行数据库个人简单信息的插入
                                                 ContentValues values = new ContentValues();
-                                                values.put("user_id",userid);
-                                                values.put("phone_num",phone_num);
-                                                values.put("nikname",nikname);
-                                                Log.e("map,put",user_id+nikname);
-                                                map.put(String.valueOf(userid),nikname);
+                                                values.put("user_id", userid);
+                                                values.put("phone_num", phone_num);
+                                                values.put("nikname", nikname);
+                                                Log.e("map,put", user_id + nikname);
+                                                map.put(String.valueOf(userid), nikname);
                                                 Cursor cursor;
-                                                String str = "select * from Friends where name="+userid;
-                                                cursor = db.query("Friends", new String[]{"user_id"},"user_id=?", new String[]{String.valueOf(userid)},null,null,null);
-                                               // db.execSQL(str);
-                                                Log.e("LoginAcitvity","cursor num" + cursor.getCount());
-                                                if(cursor.getCount() == 0)
-                                              {
-                                                  values.put("user_id",userid);
-                                               long retval =  db.insert("Friends",null,values);
+                                                cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{String.valueOf(userid)}, null, null, null);
+                                                Log.e("LoginAcitvity", "cursor num" + cursor.getCount());
+                                                if (cursor.getCount() == 0) {
+                                                    values.put("user_id", userid);
+                                                    long retval = db.insert("Friends", null, values);
 
-                                                  if(retval == -1)
-                                                     Log.e("LoginActivity","failed");
-                                                  else
-                                                      Log.e("LoginActivity","success "+retval);
-                                              } else {
+                                                    if (retval == -1)
+                                                        Log.e("LoginActivity", "failed");
+                                                    else
+                                                        Log.e("LoginActivity", "success " + retval);
+                                                } else {
 
                                                     int update = db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
-                                                    Log.e("LoginAcitivity","ceshi "+update);
+                                                    Log.e("LoginAcitivity", "ceshi " + update);
                                                 }
                                             }
                                             SharedPreferences share = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);// 私有方式获取
@@ -502,24 +500,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     }
                                 }).start();
 
-/*
-                                SQLiteDatabase db = dbHelper.getWritableDatabase();
-                                Cursor cursor;
-                                int old_id ;
-                                cursor  = db.query("message", new String[]{"max(message_id)"},"message_type=?", new String[]{"8","9","10"},null,null,null);
-
-                                if(cursor.getCount() == 0) {
-                                    old_id = 0;
-
-                                } else{
-                                    old_id = cursor.getColumnIndex("messgage_id");
-                                }
-*/
 //拉取离线信息
 
-
                                 SharedPreferences sp = getSharedPreferences("info", Context.MODE_PRIVATE);
-                                sp.edit().putString("user_id",String.valueOf(finalUser.getUserId())).commit();
+                                sp.edit().putString("user_id", String.valueOf(finalUser.getUserId())).commit();
 
                                 Intent intent = new Intent(LoginActivity.this, StartActivity.class);
                                 //  intent.putExtra("loginUser", new Gson().toJson(finalUser));
@@ -703,12 +687,43 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
         }
     }
+
     //yuyisummer 1.16测试数据库查看
-    private void sqlinit(){
+    private void sqlinit() {
         Stetho.initializeWithDefaults(this);
         new OkHttpClient.Builder()
                 .addNetworkInterceptor(new StethoInterceptor())
                 .build();
+    }
+    public void InsertOwnInfo(User user){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        String userid = "";
+        SharedPreferences share = getSharedPreferences("userInfo", Context.MODE_PRIVATE);// 私有方式获取
+        SharedPreferences.Editor edit = share.edit();
+        edit.putString("usernikname", user.getNikname()); // 用户密码
+        edit.commit();
+
+        userid = String.valueOf(user.getUserId());
+        values.put("user_id",userid );
+        values.put("phone_num", user.getPhoneNum());
+        values.put("nikname", user.getNikname());
+        Cursor cursor;
+        cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{String.valueOf(userid)}, null, null, null);
+        Log.e("LoginAcitvity", "cursor num" + cursor.getCount());
+        if (cursor.getCount() == 0) {
+            values.put("user_id", userid);
+            long retval = db.insert("Friends", null, values);
+
+            if (retval == -1)
+                Log.e("LoginActivity", "failed");
+            else
+                Log.e("LoginActivity", "success " + retval);
+        } else {
+
+            int update = db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
+            Log.e("LoginAcitivity", "ceshi " + update);
+        }
     }
 }
 

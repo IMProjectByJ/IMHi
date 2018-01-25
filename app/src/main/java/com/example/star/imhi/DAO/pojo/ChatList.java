@@ -6,16 +6,37 @@ package com.example.star.imhi.DAO.pojo;
 
 public class ChatList {
     private int imageid;
-    private Integer old_id;
+    private Integer newid;
     private int type;
-    private String fromwho, whatcontext;
+    private String fromwho;
+    private String whatcontext;
+    private  String nikname;
+    private  String messagenum = "0";
 
-    public Integer getOld_id() {
-        return old_id;
+    public ChatList(String fromwho,int type,Integer newid,String nikname,String messagenum) {
+        this.fromwho = fromwho;
+        this.type = type;
+        this.newid = newid;
+        this.nikname = nikname;
+        this.messagenum = messagenum;
+        //    this.imageid = imageid;
     }
 
-    public void setOld_id(Integer old_id) {
-        this.old_id = old_id;
+
+    public String getMessagenum() {
+        return messagenum;
+    }
+
+    public void setMessagenum(String messagenum) {
+        this.messagenum = messagenum;
+    }
+
+    public Integer getNewid() {
+        return newid;
+    }
+
+    public void setNewid(Integer newid) {
+        this.newid = newid;
     }
 
     public String getNikname() {
@@ -26,14 +47,8 @@ public class ChatList {
         this.nikname = nikname;
     }
 
-    private  String nikname;
-    public ChatList(String fromwho,int type,String whatcontext,String nikname) {
-        this.fromwho = fromwho;
-        this.type = type;
-        this.whatcontext = whatcontext;
-        this.nikname = nikname;
-        //    this.imageid = imageid;
-    }
+
+
 
     public int getImageid() {
         return imageid;

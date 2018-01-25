@@ -8,6 +8,15 @@ import android.widget.Button;
 
 public class Notice_entity {
     private String who;
+    private String whoid;
+
+    public String getWhoid() {
+        return whoid;
+    }
+
+    public void setWhoid(String whoid) {
+        this.whoid = whoid;
+    }
 
     private String addfriend;
     private Button agree;
@@ -51,8 +60,9 @@ public class Notice_entity {
     public Notice_entity(){
 
     }
-    public Notice_entity(String who){
+    public Notice_entity(String who,String whoid){
         this.who=who;
+        this.whoid = whoid;
 //        this.addfriend =addfriend;
 //        this.agree=button1;
 //        this.refuse = button2;

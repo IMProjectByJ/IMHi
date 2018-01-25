@@ -1,7 +1,6 @@
 package com.example.star.imhi.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.example.star.imhi.DAO.pojo.Notice_entity;
 import com.example.star.imhi.R;
@@ -48,8 +48,9 @@ public class Notice extends AppCompatActivity {
 
         if (cursor!=null && cursor.moveToFirst() ) {
             do{
-                String fromwho = cursor.getString(cursor.getColumnIndex("user_from_id"));
-                Notice_entity user1 = new Notice_entity(fromwho);
+                String fromid = cursor.getString(cursor.getColumnIndex("user_from_id"));
+                String fromwho = FindNikname(fromid);
+                Notice_entity user1 = new Notice_entity(fromwho,fromid);
                 noticeList.add(user1);
             }while (cursor .moveToNext());
         }
@@ -61,5 +62,18 @@ public class Notice extends AppCompatActivity {
         //noticeList.add(user1);
         recyclerView.setAdapter(adapter);
 
+    }
+
+    public String FindNikname(String user_id) {
+        //  dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
+        SQLiteDatabase db;
+        db = dbHelper.getReadableDatabase();
+        Cursor cursor;
+        cursor = db.query("Friends", new String[]{"nikname"},
+                "user_id=?", new String[]{String.valueOf(user_id)},
+                null, null, null);
+        Log.e("findnikname", String.valueOf(cursor.getCount()));
+        cursor.moveToFirst();
+        return cursor.getString(cursor.getColumnIndex("nikname"));
     }
 }

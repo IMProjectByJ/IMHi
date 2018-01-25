@@ -1,9 +1,6 @@
 package com.example.star.imhi.adapter;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,11 +10,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.star.imhi.DAO.pojo.ChatList;
-import com.example.star.imhi.DAO.pojo.Friends;
 import com.example.star.imhi.DAO.pojo.Notice_entity;
 import com.example.star.imhi.R;
-import com.example.star.imhi.activity.StartActivity;
 import com.example.star.imhi.mina.SessionManager;
 
 import org.json.JSONException;
@@ -79,7 +73,7 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
                 try {
                     jsonObject.put("from",user_id );
                     jsonObject.put("message_type", "9");
-                    jsonObject.put("to",notice_entity.getWho());
+                    jsonObject.put("to",notice_entity.getWhoid());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -110,9 +104,9 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.ViewHolder
         return maddfriends.size();
     }
 
-    public void addItem(String fromwho) {
+    public void addItem(String fromwho,String fromid) {
         Log.e("chatlistAdapterr", "引用成功");
-        Notice_entity notice_entity = new Notice_entity(fromwho);
+        Notice_entity notice_entity = new Notice_entity(fromwho,fromid);
         maddfriends.add(position, notice_entity);
         position++;
         notifyItemInserted(position);
