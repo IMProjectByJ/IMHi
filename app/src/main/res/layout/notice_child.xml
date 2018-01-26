@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/hello"
+    android:layout_margin="0.5dp"
+    android:padding="5dp"
+    android:background="#FFFFFF">
+    <LinearLayout
+        android:id="@+id/liu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="10dp">
+        <TextView
+            android:id="@+id/fromwho"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="某某某"
+            android:textColor="#000000"
+            android:textSize="20dp"/>
+        <TextView
+            android:id="@+id/addfriends"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="请求添加您为好友"/>
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/agree"
+        android:layout_toLeftOf="@+id/refuse"
+        android:layout_marginRight="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:background="@drawable/shape_send"
+        android:text="同意"/>
+    <Button
+        android:id="@+id/refuse"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:background="@drawable/shape_del"
+        android:text="拒绝"/>
+</RelativeLayout>
