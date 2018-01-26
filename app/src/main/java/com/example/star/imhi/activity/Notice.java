@@ -11,18 +11,29 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.example.star.imhi.DAO.pojo.Notice_entity;
+import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.example.star.imhi.adapter.NoticeAdapter;
 import com.example.star.imhi.database.MyDatabaseHelper;
+import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class Notice extends AppCompatActivity {
     private List<Notice_entity> noticeList = new ArrayList<>();
     NoticeAdapter adapter;
     private MyDatabaseHelper dbHelper;
-
+    String nikname;
+    String userid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +75,7 @@ public class Notice extends AppCompatActivity {
 
     }
 
-    public String FindNikname(String user_id) {
+    public String FindNikname(final String user_id) {
         //  dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
         SQLiteDatabase db;
         db = dbHelper.getReadableDatabase();
@@ -74,6 +85,40 @@ public class Notice extends AppCompatActivity {
                 null, null, null);
         Log.e("findnikname", String.valueOf(cursor.getCount()));
         cursor.moveToFirst();
-        return cursor.getString(cursor.getColumnIndex("nikname"));
+
+        if(cursor.getCount() == 0){
+            userid =user_id;
+         Thread thread =  new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    OkHttpClient client = new OkHttpClient();
+                    Request request;
+                        request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_uid/" + user_id).build();
+                    try {
+                        Response response = client.newCall(request).execute();
+                        String responseData = response.body().string();
+                        JSONObject jsonObject = new JSONObject(responseData);
+                        if (jsonObject.optString("err") == "") {
+                            Gson gson  = new Gson();
+                            User user = gson.fromJson(jsonObject.getString("add_search"),User.class);
+                            nikname = user.getNikname();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else{
+            nikname = cursor.getString(cursor.getColumnIndex("nikname"));
+        }
+        return nikname;
     }
 }

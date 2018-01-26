@@ -42,6 +42,10 @@ public class MyHandler extends IoHandlerAdapter {
             case "6":
                 break;
             case "2":
+                Log.e("MyHandler","已经接收到了信息");
+                textcontent = jsonObject.getString("textcontent");
+                intent.putExtra("textcontent", textcontent);
+                break;
             case "3":
             case "7":
             case "8":
@@ -52,8 +56,9 @@ public class MyHandler extends IoHandlerAdapter {
                 break;
 
         }
-
-
+        if(type.equals("8")){
+            intent.putExtra("nikname",jsonObject.getString("nikname"));
+        }
         if (mContext != null) {
             intent.putExtra("message_type", type);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);

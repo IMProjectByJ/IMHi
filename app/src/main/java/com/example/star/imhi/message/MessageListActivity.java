@@ -37,6 +37,7 @@ import com.example.star.imhi.DAO.pojo.DefaultUser;
 import com.example.star.imhi.DAO.pojo.MyMessage;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.Chating;
+import com.example.star.imhi.Utils.ThisTime;
 import com.example.star.imhi.database.MyDatabaseHelper;
 import com.example.star.imhi.mina.SessionManager;
 import com.example.star.imhi.view.ChatView;
@@ -115,6 +116,21 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         String usernikname = preferences.getString("usernikname", null);
         String userId = preferences.getString("userId", null);
 
+        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject1 = new JSONObject();
+        try {
+            jsonObject.put("from",userId);
+            jsonObject.put("to",user2.getId());
+            jsonObject.put("texttype","7");
+            jsonObject1.put("message_type","13");
+            jsonObject1.put("textcontent",jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.e("写入chating","测试");
+        SessionManager.getInstance().writeMag(jsonObject1);
+
         // DefaultUser(String id, String displayName, String avatar, int type)
         //user1是自己
         user1 = new DefaultUser(userId,usernikname,"R.drawable.aurora_menuitem_emoji",1);
@@ -162,7 +178,10 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
                     jsonObject.put("message_type","2");
                     jsonObject.put("text_type","1");
                     jsonObject.put("textcontent",input.toString());
-                    jsonObject.put("date",new SimpleDateFormat("HH:mm", Locale.getDefault()).format(date));
+                    Log.e("message",DateToMySQLDateTimeString(ThisTime.HaveThisTime()));
+                    Log.e("message",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(date));
+                    jsonObject.put("date",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(date));
+                    //jsonObject.put("date",new SimpleDateFormat("HH:mm", Locale.getDefault()).format(date));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -475,7 +494,7 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         Log.e("message 427",cursor.getString(0));
         Log.e("message 427",cursor.getString(1));
 //        Log.e("message 427",cursor.getString(2));
-        Log.e("message 427",cursor.getString(cursor.getCount()));
+//        Log.e("message 427",cursor.getString(cursor.getCount()));
 
         List<MyMessage> list = new ArrayList<>();
 
@@ -721,4 +740,32 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         mSensorManager.unregisterListener(this);
         chating.setChating(0);
     }
+    public static String DateToMySQLDateTimeString(Date date) {
+        final String[] MONTH = {
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+        };
+        StringBuffer ret = new StringBuffer();
+        String dateToString = date.toString();  //like "Sat Dec 17 15:55:16 CST 2005"
+        ret.append(dateToString.substring(24, 24 + 4));//append yyyy
+        String sMonth = dateToString.substring(4, 4 + 3);
+        for (int i = 0; i < 12; i++) {      //append mm
+            if (sMonth.equalsIgnoreCase(MONTH[i])) {
+                if ((i + 1) < 10)
+                    ret.append("-0");
+                else
+                    ret.append("-");
+                ret.append((i + 1));
+                break;
+            }
+        }
+
+        ret.append("-");
+        ret.append(dateToString.substring(8, 8 + 2));
+        ret.append(" ");
+        ret.append(dateToString.substring(11, 11 + 8));
+
+        return ret.toString();
+    }
+
 }

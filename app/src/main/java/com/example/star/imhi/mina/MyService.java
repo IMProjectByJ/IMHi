@@ -46,7 +46,7 @@ public class MyService extends Service {
         public ConnectionThread(String name,Context context) {
             super(name);
             ConnectionConfig config = new ConnectionConfig.Builder(context)
-                    .setIp("192.168.253.1" )
+                    .setIp("192.168.43.23" )
                     .setPort(8888)
                     .setReadBufferSize(2048)
                     .setConnectionTimeout(10)

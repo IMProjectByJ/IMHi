@@ -479,7 +479,7 @@ public class StartActivity extends BaseActivity {
 //                            intent.setAction("com.bs.showMsg");
 //                        }
 //                    }
-
+                    Log.e("startActivity","进入了case 2");
                     try {
                         type2_str = new JSONObject(str1);
                         String userFormId = "";
@@ -697,6 +697,9 @@ public class StartActivity extends BaseActivity {
                         String userFormId = "";
                         String newid = str.getString("messageId");
                         userFormId = str.getString("userFromId");
+                        if(message_type1 == 8){
+                            passiveAddNikname(userFormId,intent.getStringExtra("nikname"));
+                        }
                         if (message_type1 == 8 || message_type1 == 9) {
                             friendtype = "3";
                             userFormId = "9999";
@@ -974,6 +977,29 @@ public class StartActivity extends BaseActivity {
             }).start();
 
         }
+    }
+    public void passiveAddNikname(String user_id,String nikname){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("user_id",user_id);
+        values.put("nikname", nikname);
+        Cursor cursor;
+        cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{user_id}, null, null, null);
+        if (cursor.getCount() == 0) {
+            long retval = db.insert("Friends", null, values);
+            if (retval == -1)
+                Log.e("个人信息插入", "failed");
+            else
+                Log.e("个人信息插入", "success " + retval);
+        } else {
+
+            int update = db.update("Friends", values, "user_id=?", new String[]{user_id});
+            Log.e("个人信息更新", "数量 " + update);
+        }
+
+
+
+
     }
 
 }
