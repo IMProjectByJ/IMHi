@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/current_touch"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    android:clickable="true"
+    android:orientation="vertical">
+
+    <include layout="@layout/activity_title_finsh"/>
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="?android:attr/selectableItemBackground">-->
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="#FFF">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="头像"
+                android:textColor="#000"
+                android:textSize="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="15dp"/>
+            <ImageView
+                android:id="@+id/iv_personal_icon"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/man"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="25dp"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/right"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
+        </RelativeLayout>
+    <!--</LinearLayout>-->
+
+    <TextView
+        android:layout_width="400dp"
+        android:layout_height="2dp"
+        android:layout_marginLeft="12dp"
+        android:background="#F4F4F4" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground">
+        <RelativeLayout
+            android:background="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="45dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="名字"
+                android:layout_centerVertical="true"
+                android:textColor="#000"
+                android:textSize="18dp"
+                android:layout_marginLeft="15dp"
+                android:id="@+id/textView" />
+
+            <EditText
+                android:id="@+id/personal_name"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/imageView"
+                android:layout_toStartOf="@+id/imageView"
+                android:text="段错误(核心已转储)"
+                android:maxLength="12"
+                android:gravity="center_vertical"
+                android:background="@null"
+                android:imeOptions="actionDone"
+                android:cursorVisible="false"
+                android:singleLine="true"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/right"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:id="@+id/imageView" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="400dp"
+        android:layout_height="2dp"
+        android:layout_marginLeft="12dp"
+        android:background="#F4F4F4" />
+    <RelativeLayout
+        android:background="#fff"
+        android:layout_width="match_parent"
+        android:layout_height="45dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Uid号"
+            android:layout_centerVertical="true"
+            android:textColor="#000"
+            android:textSize="18dp"
+            android:layout_marginLeft="15dp" />
+        <TextView
+            android:id="@+id/uID"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10000"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="25dp"
+            />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="400dp"
+        android:layout_height="2dp"
+        android:layout_marginLeft="12dp"
+        android:background="#F4F4F4" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground">
+
+        <LinearLayout
+            android:background="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_marginLeft="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:text="个性签名"
+                android:textSize="20dp"
+                android:textColor="#000"
+                android:gravity="center_vertical"/>
+
+            <EditText
+                android:id="@+id/personal_words"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_centerVertical="true"
+                android:text="所谓漫漫长路，不过走走停停所谓漫漫长路，不过走走停停所谓漫漫长路，不过走走停停"
+                android:maxLength="26"
+                android:layout_gravity="center_vertical"
+                android:background="@null"
+                android:imeOptions="actionDone"
+                android:cursorVisible="false"
+                android:textSize="14dp"
+                android:textColor="#CCCCCC"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <TextView
+        android:layout_width="400dp"
+        android:layout_height="2dp"
+        android:layout_marginLeft="12dp"
+        android:background="#F4F4F4" />
+
+    <LinearLayout
+        android:id="@+id/personal_more"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#fff"
+        >
+        <RelativeLayout
+
+            android:layout_width="match_parent"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_height="45dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="更多"
+                android:layout_centerVertical="true"
+                android:textColor="#000"
+                android:textSize="18dp"
+                android:layout_marginLeft="15dp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/right"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground">
+        <LinearLayout
+            android:layout_marginTop="15dp"
+            android:background="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的地址"
+                android:layout_gravity="center_vertical"
+                android:textColor="#000"
+                android:textSize="18dp"
+                android:layout_marginLeft="15dp" />
+
+            <EditText
+                android:id="@+id/personal_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_centerVertical="true"
+                android:text="M78星云光之国警备队常驻区第三十二火力交战区"
+                android:maxLength="26"
+                android:layout_gravity="center_vertical"
+                android:background="@null"
+                android:imeOptions="actionDone"
+                android:cursorVisible="false"
+                android:textSize="14dp"
+                android:textColor="#CCCCCC"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/right"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

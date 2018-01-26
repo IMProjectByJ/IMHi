@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/app"
@@ -24,29 +24,23 @@
         android:theme="@style/home">
         <activity
             android:name=".UI.LoginActivity"
-            android:launchMode="singleTask"
-            android:label="">
+            android:label=""
+            android:launchMode="singleTask">
             <intent-filter android:label="QQ">
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
-
         <activity
             android:name=".activity.StartActivity"
             android:label="" />
         <activity android:name=".UI.RegisterActivity" />
-        <activity android:name=".UI.MainActivity"/>
-        <service android:name=".mina.MyService"/>
-        <activity android:name=".UI.HomepageActivity"/>
+        <activity android:name=".UI.MainActivity" />
 
+        <service android:name=".mina.MyService" />
 
-
-
+        <activity android:name=".UI.HomepageActivity" />
         <activity android:name=".activity.Camera" />
         <activity android:name=".activity.Picture" />
         <activity android:name=".activity.ShowPicture" />
@@ -57,9 +51,7 @@
         <activity
             android:name=".activity.Setting"
             android:label="" />
-        <activity android:name=".activity.HomePage"></activity>
-
-
+        <activity android:name=".activity.HomePage" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -77,12 +69,9 @@
             android:logo="@drawable/left" />
         <activity android:name=".addfriend.MoreActivity" />
         <activity android:name=".addfriend.RemarksActivity" />
-        <activity android:name=".addfriend.AddFriendActivity"></activity>
-
-
-
-
+        <activity android:name=".addfriend.AddFriendActivity" />
+        <activity android:name=".personally.Personal_information" />
+        <activity android:name=".personally.PersonalMoreActivity"></activity>
     </application>
-
 
 </manifest>

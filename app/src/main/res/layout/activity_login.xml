@@ -49,14 +49,29 @@
                 android:layout_marginTop="10dp"
                 android:layout_height="wrap_content">
 
-                <AutoCompleteTextView
-                    android:id="@+id/mobile"
+                <RelativeLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_email"
-                    android:inputType="phone"
-                    android:maxLines="1"
-                    android:singleLine="true" />
+                    android:layout_height="wrap_content">
+                    <AutoCompleteTextView
+                        android:id="@+id/mobile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/prompt_email"
+                        android:inputType="phone"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+                    <ImageView
+                        android:id="@+id/list_down"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/down"/>
+                </RelativeLayout>
+
+
+
 
             </android.support.design.widget.TextInputLayout>
 
@@ -65,20 +80,46 @@
                 android:layout_marginTop="20dp"
                 android:layout_height="wrap_content">
 
-                <EditText
-                    android:id="@+id/password"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_password"
-                    android:imeActionId="6"
-                    android:imeActionLabel="@string/action_sign_in_short"
-                    android:imeOptions="actionUnspecified"
-                    android:inputType="textPassword"
-                    android:maxLines="1"
-                    android:singleLine="true" />
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:id="@+id/password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/prompt_password"
+                        android:imeActionId="6"
+                        android:imeActionLabel="@string/action_sign_in_short"
+                        android:imeOptions="actionUnspecified"
+                        android:inputType="textPassword"
+                        android:maxLines="1"
+                        android:singleLine="true" />
+
+                    <ListView
+                        android:layout_alignParentTop="true"
+                        android:visibility="gone"
+                        android:id="@+id/list_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"/>
+
+                </RelativeLayout>
 
             </android.support.design.widget.TextInputLayout>
-
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <CheckBox
+                    android:id="@+id/rem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="记住密码"/>
+                <CheckBox
+                    android:id="@+id/auto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自动登录"/>
+            </LinearLayout>
             <Button
                 android:id="@+id/mobile_sign_in_button"
                 style="?android:textAppearanceSmall"

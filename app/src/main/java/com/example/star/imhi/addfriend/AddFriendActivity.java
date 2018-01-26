@@ -86,9 +86,9 @@ public class AddFriendActivity extends AppCompatActivity {
                 String Mobile = editText.getText().toString();
                 Request request;
                 if(Mobile.length() == 11)
-                    request = new Request.Builder().url("http://192.168.253.1:8080/api/user/add_search_by_number/" + editText.getText().toString()).build();
+                    request = new Request.Builder().url(getString(R.string.postUrl) + editText.getText().toString()).build();
                 else
-                    request = new Request.Builder().url("http://192.168.253.1:8080/api/user/add_search_by_uid/" + editText.getText().toString()).build();
+                    request = new Request.Builder().url(getString(R.string.postUrl) + editText.getText().toString()).build();
                 try {
                     Response response = client.newCall(request).execute();
                     String responseData = response.body().string();
