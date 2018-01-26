@@ -12,88 +12,101 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical">
-
         <LinearLayout
-            android:id="@+id/set_1"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:orientation="horizontal"
-            android:background="?android:attr/selectableItemBackground">
-
-            <TextView
-                android:layout_width="wrap_content"
+            android:background="#FFFFFF">
+            <LinearLayout
+                android:id="@+id/set_1"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="个人信息"
-                android:textSize="20dp" />
+                android:padding="15dp"
+                android:orientation="horizontal"
+                android:background="?android:attr/selectableItemBackground">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="个人信息"
+                    android:textSize="22dp" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:src="@mipmap/more" />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:src="@drawable/right" />
+            </LinearLayout>
         </LinearLayout>
 
+
         <LinearLayout
-            android:id="@+id/set_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
+            android:background="#FFFFFF"
+            android:layout_marginTop="2dp">
+            <LinearLayout
+                android:id="@+id/set_2"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="详细信息"
-                android:textSize="20dp" />
+                android:padding="15dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:src="@mipmap/more" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="修改密码"
+                    android:textSize="22dp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:src="@drawable/right" />
+            </LinearLayout>
         </LinearLayout>
 
+
         <LinearLayout
-            android:id="@+id/set_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:orientation="horizontal"
-            android:background="?android:attr/selectableItemBackground">
-
-            <TextView
-                android:layout_width="wrap_content"
+            android:background="#FFFFFF"
+            android:layout_marginTop="2dp">
+            <LinearLayout
+                android:id="@+id/set_3"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="。。。。。。"
-                android:textSize="20dp" />
+                android:padding="15dp"
+                android:orientation="horizontal"
+                android:background="?android:attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:src="@mipmap/more" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="敬请期待"
+                    android:textSize="22dp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:src="@drawable/right" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
-    <!--<android.support.design.widget.NavigationView-->
-    <!--android:id="@+id/set_view"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--app:menu="@menu/nav_menu"-->
-    <!--android:background="@drawable/person"-->
-    <!--android:layout_weight="1"/>-->
     <Button
+        android:id="@+id/exit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="退出登录"
         android:textSize="25dp"
-        android:background="@drawable/button_style"
-        android:textColor="#FF0000"
+        android:textColor="#FFFFF0"
+        android:layout_margin="5dp"
+        android:background="@drawable/shape_del"
         />
 
     <ImageView

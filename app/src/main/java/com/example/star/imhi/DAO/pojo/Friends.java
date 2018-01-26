@@ -7,8 +7,8 @@ package com.example.star.imhi.DAO.pojo;
 public class Friends {
     private String name;
     private String user_id;
-    private int imageid;
-    private  int offline_msg;
+    private Integer imageid;
+    private  Integer offline_msg;
 
     public String getName() {
         return name;
@@ -30,11 +30,11 @@ public class Friends {
         return imageid;
     }
 
-    public void setImageid(int imageid) {
+    public void setImageid(Integer imageid) {
         this.imageid = imageid;
     }
 
-    public int getOffline_msg() {
+    public Integer getOffline_msg() {
         return offline_msg;
     }
 

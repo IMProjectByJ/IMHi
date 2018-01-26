@@ -4,13 +4,15 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.example.star.imhi"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-        useLibrary 'org.apache.http.legacy'
+        useLibrary'org.apache.http.legacy'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -21,6 +23,7 @@ android {
         exclude 'META-INF/DEPENDENCIES'// 这个纠结了很久
 
     }
+
 }
 
 dependencies {
@@ -62,5 +65,12 @@ dependencies {
 //If you want to add a network helper
     compile 'com.facebook.stetho:stetho-okhttp3:1.3.1'
     compile 'me.jessyan:progressmanager:1.5.0'
+    compile 'com.github.f0ris.sweetalert:library:1.5.1'
+    compile 'pub.devrel:easypermissions:1.0.1'
+    compile 'cn.jiguang.imui:messagelist:0.5.8'
+    compile 'cn.jiguang.imui:chatinput:0.6.3'
+
+
+
 
 }

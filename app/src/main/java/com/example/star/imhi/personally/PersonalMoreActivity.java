@@ -4,20 +4,19 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,12 +24,13 @@ import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.Calendar;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PersonalMoreActivity extends AppCompatActivity {
@@ -45,6 +45,7 @@ public class PersonalMoreActivity extends AppCompatActivity {
     private TextView birthday;
     int mYear, mMonth, mDay;
     final int DATE_DIALOG = 1;
+    public static final MediaType JSON=MediaType.parse("application/json; charset=utf-8");
 
 
     @Override
@@ -93,6 +94,7 @@ public class PersonalMoreActivity extends AppCompatActivity {
             person_age.setText(user.getAge().toString());
         }
         birthday.setText(user.getBirth());
+
     }
 
     public void clickData(){
@@ -185,21 +187,48 @@ public class PersonalMoreActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+//                            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
                             String jsonObject = new Gson().toJson(user);
-                            Request request;
-                            Response response;
+//                            Request request;
+//                            Response response;
+//
+//                            request = new Request.Builder().url("http://192.168.252.1:8080/api/user/information/" + jsonObject).build();
+//                            //request = new Request.Builder().url("http://192.168.253.1:8080/api/user/add_search_by_uid/" + editText.getText().toString()).build();
+//                            response = okHttpClient.newCall(request).execute();
+//                            String responseData = response.body().string();
 
-                            request = new Request.Builder().url("http://192.168.253.1:8080/api/user/information/" + jsonObject).build();
-                            //request = new Request.Builder().url("http://192.168.253.1:8080/api/user/add_search_by_uid/" + editText.getText().toString()).build();
-                            response = okHttpClient.newCall(request).execute();
-                            String responseData = response.body().string();
 
-                            Log.e("personInformation:", responseData);
+                            //Log.e("personInformation:", responseData);
+                            OkHttpClient okHttpClient = new OkHttpClient();
+                            //创建一个RequestBody(参数1：数据类型 参数2传递的json串)
+                            //json为String类型的json数据
+                            RequestBody requestBody = RequestBody.create(JSON, jsonObject);
+                            //创建一个请求对象
+                            Request request = new Request.Builder()
+                                    .url(getString(R.string.postUrl) + "api/user/information_post")
+                                    .post(requestBody)
+                                    .build();
+                            //发送请求获取响应
+                            try {
+                                Response response=okHttpClient.newCall(request).execute();
+                                //判断请求是否成功
+                                if(response.isSuccessful()){
+                                    //打印服务端返回结果
+                                    Log.e("Success", "success!!!!!!!!!" );
+
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             Intent intent = new Intent();
                             intent.putExtra("data_return", new Gson().toJson(user));
                             setResult(RESULT_OK, intent);
 
+                            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(PersonalMoreActivity.this);
+                            Intent intent1 = new Intent("com.imagePath.LOCAL_BROADCAST");
+                            intent1.putExtra("userAge",user.getAge().toString());
+                            intent1.putExtra("userBirth",user.getBirth());
+                            localBroadcastManager.sendBroadcast(intent1);
                             finish();
                         } catch (Exception e) {
                             e.printStackTrace();

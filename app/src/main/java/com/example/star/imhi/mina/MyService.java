@@ -7,9 +7,6 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.io.IOException;
 
 /**
  * Created by 11599 on 2018/1/9.
@@ -49,7 +46,7 @@ public class MyService extends Service {
         public ConnectionThread(String name,Context context) {
             super(name);
             ConnectionConfig config = new ConnectionConfig.Builder(context)
-                    .setIp("192.168.252.1")
+                    .setIp("192.168.43.23" )
                     .setPort(8888)
                     .setReadBufferSize(2048)
                     .setConnectionTimeout(10)

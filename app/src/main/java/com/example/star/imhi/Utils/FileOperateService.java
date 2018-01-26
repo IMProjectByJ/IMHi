@@ -1,18 +1,10 @@
 package com.example.star.imhi.Utils;
 
-import android.content.Intent;
-
-import com.example.star.imhi.Utils.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
 
-import javax.xml.transform.OutputKeys;
-
-import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -36,7 +28,7 @@ public class FileOperateService {
                 .build();
         Request request =  new Request.Builder()
              //   .header("token",token)// 获得token
-                .header("token","eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxMDAzMCJ9.o6q6LBkgamGY0tjjR1tF1Kto-IpafZGIkTdYcM9WP80")
+                .header("token",token)
                 .url(url)
                 .post(requestBody)
                 .build();
@@ -61,8 +53,10 @@ public class FileOperateService {
         File file = new FileUtils()
                 .createFileInSDCard(filePath,fileName);// 创建了文件
         try {
+            /*
+              第一次登录这里会出现问题
+             */
             BufferedSink sink = Okio.buffer(Okio.sink(file));
-
             sink.writeAll(source);
             sink.flush();
             return  file;

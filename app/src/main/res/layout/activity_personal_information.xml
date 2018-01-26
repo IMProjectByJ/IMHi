@@ -28,14 +28,23 @@
                 android:textSize="20dp"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="15dp"/>
-            <ImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_personal_icon"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:src="@drawable/man"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="25dp"/>
+                android:layout_marginRight="25dp"
+                />
+            <!--<ImageView-->
+                <!--android:id="@+id/iv_personal_icon"-->
+                <!--android:layout_width="60dp"-->
+                <!--android:layout_height="60dp"-->
+                <!--android:src="@drawable/man"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_marginRight="25dp"/>-->
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,14 +81,14 @@
 
             <EditText
                 android:id="@+id/personal_name"
-                android:layout_width="wrap_content"
+                android:layout_width="200dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
                 android:layout_toLeftOf="@+id/imageView"
                 android:layout_toStartOf="@+id/imageView"
                 android:text="段错误(核心已转储)"
                 android:maxLength="12"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:background="@null"
                 android:imeOptions="actionDone"
                 android:cursorVisible="false"
@@ -151,7 +160,7 @@
 
             <EditText
                 android:id="@+id/personal_words"
-                android:layout_width="wrap_content"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_centerVertical="true"

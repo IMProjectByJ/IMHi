@@ -13,6 +13,7 @@
         android:src="@drawable/head_image"
         android:layout_gravity="center_horizontal"/>
     <TextView
+        android:id="@+id/nicheng"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -31,11 +32,20 @@
             android:layout_marginRight="10dp"
             android:src="@drawable/left1"/>
         <TextView
-            android:id="@+id/tname"
+            android:id="@+id/tAge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18dp"
-            android:text="张三"/>
+            android:gravity="center"
+            android:text="请完善个人信息"/>
+        <TextView
+            android:id="@+id/tBirth"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:text="请完善个人信息"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/age"
@@ -49,11 +59,12 @@
             android:layout_marginRight="10dp"
             android:src="@drawable/left2"/>
         <TextView
-            android:id="@+id/tage"
+            android:id="@+id/tTelphone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18dp"
-            android:text="6666666666"/>
+            android:gravity="center"
+            android:text="请完善个人信息"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/email"
@@ -71,7 +82,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18dp"
-            android:text="6666666@qq.com"/>
+            android:gravity="center"
+            android:text="请完善个人信息"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/address"
@@ -89,7 +101,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18dp"
-            android:text="南京市江宁区"/>
+            android:gravity="center"
+            android:text="请完善个人信息"/>
     </LinearLayout>
 
 

@@ -20,9 +20,8 @@ public class User  {
     private  String motto;
 
     public User(){}
-    public User(String phoneNum){
-        this.phoneNum = phoneNum;
-    }
+    public User(String phoneNum){this.phoneNum = phoneNum;}
+
     @Override
     public String toString() {
         return "User{" +

@@ -1,22 +1,22 @@
 package com.example.star.imhi.addfriend;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
+import com.example.star.imhi.database.MyDatabaseHelper;
 import com.example.star.imhi.mina.SessionManager;
 import com.google.gson.Gson;
 
@@ -35,6 +35,7 @@ public class AddFriendActivity extends AppCompatActivity {
     ImageView imageView;
     Button btn_addfriend;
     TextView textView;
+    private MyDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +64,16 @@ public class AddFriendActivity extends AppCompatActivity {
                    // startActivity(intent);
                     JSONObject json = new JSONObject();
                     try {
-                        json.put("from","10001");
+                        SharedPreferences preferences=getSharedPreferences("userInfo", Context.MODE_PRIVATE);
+                        String user_id=preferences.getString("userId","1");
+                        json.put("from",user_id);
                         json.put("to",user.getUserId());
                         json.put("message_type","8");
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
                     SessionManager.getInstance().writeMag(json);
                 }
             }
@@ -86,9 +91,9 @@ public class AddFriendActivity extends AppCompatActivity {
                 String Mobile = editText.getText().toString();
                 Request request;
                 if(Mobile.length() == 11)
-                    request = new Request.Builder().url(getString(R.string.postUrl) + editText.getText().toString()).build();
+                    request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_number/" + editText.getText().toString()).build();
                 else
-                    request = new Request.Builder().url(getString(R.string.postUrl) + editText.getText().toString()).build();
+                    request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_uid/" + editText.getText().toString()).build();
                 try {
                     Response response = client.newCall(request).execute();
                     String responseData = response.body().string();
@@ -116,5 +121,32 @@ public class AddFriendActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    public void InsertOwnInfo(User user){
+        dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        String userid = "";
+        userid = String.valueOf(user.getUserId());
+        values.put("user_id",userid );
+        values.put("phone_num", user.getPhoneNum());
+        values.put("nikname", user.getNikname());
+        Cursor cursor;
+        cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{String.valueOf(userid)}, null, null, null);
+        Log.e("LoginAcitvity", "cursor num" + cursor.getCount());
+        if (cursor.getCount() == 0) {
+            values.put("user_id", userid);
+            long retval = db.insert("Friends", null, values);
+
+            if (retval == -1)
+                Log.e("LoginActivity", "failed");
+            else
+                Log.e("LoginActivity", "success " + retval);
+        } else {
+
+            int update = db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
+            Log.e("LoginAcitivity", "ceshi " + update);
+        }
     }
 }

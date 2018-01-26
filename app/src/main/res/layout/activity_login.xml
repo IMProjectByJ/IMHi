@@ -70,9 +70,6 @@
                         android:src="@drawable/down"/>
                 </RelativeLayout>
 
-
-
-
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout

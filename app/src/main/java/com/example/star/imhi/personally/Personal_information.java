@@ -12,13 +12,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -38,11 +39,7 @@ import com.example.star.imhi.Utils.FileOperateService;
 import com.example.star.imhi.Utils.FileUtils;
 import com.example.star.imhi.Utils.ImageUtil;
 import com.example.star.imhi.Utils.OkHttpUtils;
-import com.example.star.imhi.addfriend.MoreActivity;
 import com.google.gson.Gson;
-
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 
 import org.json.JSONException;
 
@@ -51,11 +48,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.internal.Util;
 
 public class Personal_information extends AppCompatActivity {
 
@@ -76,6 +73,7 @@ public class Personal_information extends AppCompatActivity {
     SharedPreferences.Editor editor;
     private static final String PREFERENCE_NAME = "userInfo";
     private String  token;
+    public static final MediaType JSON=MediaType.parse("application/json; charset=utf-8");
 
 
     @Override
@@ -124,18 +122,8 @@ public class Personal_information extends AppCompatActivity {
         sp = getSharedPreferences(PREFERENCE_NAME, Activity.MODE_PRIVATE);
         editor = sp.edit();
         token = sp.getString("token", "");
+        Log.e("token",token);
         Log.e("-------token:", token+"is null?");
-
-        Bitmap bm = BitmapFactory.decodeFile(sp.getString("image_url——1",""));
-
-        if (bm != null) {
-            Log.e("-----------Bitmap:", "bitmap is not null" );
-            iv_personal_icon.setImageBitmap(bm);
-        } else {
-            String responseUrl = getString(R.string.postUrl)+"/api/imageOperate/imageDownload";
-            responseServert(responseUrl);
-        }
-
 
         Intent intent = getIntent();
         user = new Gson().fromJson(intent.getStringExtra("person_user"), User.class);
@@ -144,6 +132,21 @@ public class Personal_information extends AppCompatActivity {
         personal_name.setText(user.getNikname());
         person_words.setText(user.getMotto());
         uID.setText(user.getUserId().toString());
+
+        Bitmap bm = BitmapFactory.decodeFile(sp.getString(user.getUserId().toString(),""));
+
+        if (bm != null) {
+            Log.e("-----------Bitmap:", "bitmap is not null" );
+            iv_personal_icon.setImageBitmap(bm);
+        } else {
+            Log.e("-----------Bitmap:", "bitmap is null" );
+
+            String responseUrl = getString(R.string.postUrl)+"/api/imageOperate/imageDownload";
+            responseServert(responseUrl);
+        }
+
+
+
     }
 
     public void responseServert(final String Url){
@@ -159,9 +162,40 @@ public class Personal_information extends AppCompatActivity {
                     Response response = okHttpClient.newCall(request).execute();
                     File file = fileUtils.createFileInSDCard(user.getPhoneNum(), user.getUserId().toString());
                     File file1 = FileOperateService.saveFile(response, user.getPhoneNum()+".jpg", file.getAbsolutePath());
-                    Log.e("-------file1:", file1.getAbsolutePath());
-                    Bitmap bm1 = BitmapFactory.decodeFile(file1.getAbsolutePath());//                    Log.e("--------ResponseBody:", file );
-                    iv_personal_icon.setImageBitmap(bm1);
+
+                    if (file1 == null) {
+                        Log.e("file1?", "file1 is null" );
+                        //Log.e("-------file1:", file1.getAbsolutePath());
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_personal_icon.setImageResource(R.drawable.man);
+                            }
+                        });
+                    } else {
+                        Log.e("-------file1:", file1.getAbsolutePath());
+                        final Bitmap bm1 = BitmapFactory.decodeFile(file1.getAbsolutePath());//                    Log.e("--------ResponseBody:", file );
+
+
+                        if (bm1 == null) {
+                            Log.e("-----------Bitmap1111:?", "Bitmap is null" );
+                            //Log.e("-----------Bitmap1111:", bm1.toString());
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    iv_personal_icon.setImageResource(R.drawable.man);
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    iv_personal_icon.setImageBitmap(bm1);
+                                }
+                            });
+                        }
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -200,13 +234,15 @@ public class Personal_information extends AppCompatActivity {
             int check = ContextCompat.checkSelfPermission(this, permissions[0]);
             // 权限是否已经 授权 GRANTED---授权  DINIED---拒绝
             if (check != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
         }
         Intent openCameraIntent = new Intent(
                 MediaStore.ACTION_IMAGE_CAPTURE);
+//        File file = new File(Environment
+//                .getExternalStorageDirectory().getAbsolutePath() + "/test/" + user.getPhoneNum(), "image.jpg");
         File file = new File(Environment
-                .getExternalStorageDirectory(), "image.jpg");
+                .getExternalStorageDirectory().getAbsolutePath() + "/test/" + user.getPhoneNum()+".jpg");
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= 24) {
             openCameraIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -275,6 +311,7 @@ public class Personal_information extends AppCompatActivity {
             Bitmap photo = extras.getParcelable("data");
             photo = ImageUtil.toRoundBitmap(photo); // 这个时候的图片已经被处理成圆形的了
             iv_personal_icon.setImageBitmap(photo);
+
             uploadPic(photo);
         }
     }
@@ -295,10 +332,20 @@ public class Personal_information extends AppCompatActivity {
             String serverUrl = getString(R.string.postUrl)+"/api/imageOperate/imageUpload";
             String imagePath = saveImageToGallery(Personal_information.this, bitmap);
             Log.e("imagePath", imagePath + "");
-            editor.putString("image_url", imagePath);
+            editor.putString(user.getUserId().toString(), imagePath);
             editor.commit();
 
-            requestServert(imagePath, serverUrl, token);
+            LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+            Intent intent = new Intent("com.imagePath.LOCAL_BROADCAST");
+            intent.putExtra("imgData",imagePath);
+            localBroadcastManager.sendBroadcast(intent);
+
+
+//            Intent intent = new Intent("com.example.broadcasttest.MY_BROADCAST");
+//            intent.putExtra("imgData", imagePath);
+//            sendBroadcast(intent);
+
+            requestServert(imagePath, serverUrl,token);
 //        }
     }
 
@@ -316,9 +363,9 @@ public class Personal_information extends AppCompatActivity {
                     Log.e("responseData", responseData);
                     org.json.JSONObject jsonObject = new org.json.JSONObject(responseData);
 
-                    if (jsonObject.optString("err") != null) {
+                    if (jsonObject.optString("err") != null || !jsonObject.optString("err").equals("")) {
                         Log.e("上传--：", jsonObject.optString("err"));
-                    } else if (jsonObject.optString("success") != null) {
+                    } else if (jsonObject.optString("success") != null || !jsonObject.optString("success").equals("")) {
                         Log.e("上传--：", "成功");
                     }
 
@@ -393,22 +440,56 @@ public class Personal_information extends AppCompatActivity {
                 user.setNikname(personal_name.getText().toString());
                 user.setMotto(person_words.getText().toString());
 
+//                user.setHeadUrl("");
+
+                Log.e("user:", user.toString() );
+                final String json = new Gson().toJson(user).toString();
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-                            String jsonObject = new Gson().toJson(user);
-                            Request request;
-                            Response response;
 
-                            request = new Request.Builder().url("http://192.168.252.1:8080/api/user/information/" + jsonObject).build();
-                            //request = new Request.Builder().url("http://192.168.253.1:8080/api/user/add_search_by_uid/" + editText.getText().toString()).build();
-                            response = okHttpClient.newCall(request).execute();
-                            String responseData = response.body().string();
+//                            Log.e("JSON TEST!!!!!:", json);
+//                            OkHttpClient okHttpClient = new OkHttpClient();
+//
+//                            Request request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/information/"+json).build();
+//                            //Request request = new Request.Builder().get().url(getString(R.string.postUrl)+"api/user/information/"+"TEST").build();
+//                            Response response = okHttpClient.newCall(request).execute();
 
-                            Log.e("personInformation:", responseData);
+                            //申明给服务端传递一个json串
+                            //创建一个OkHttpClient对象
+                            OkHttpClient okHttpClient = new OkHttpClient();
+                            //创建一个RequestBody(参数1：数据类型 参数2传递的json串)
+                            //json为String类型的json数据
+                            RequestBody requestBody = RequestBody.create(JSON, json);
+                            //创建一个请求对象
+                            Request request = new Request.Builder()
+                                    .url(getString(R.string.postUrl) + "api/user/information_post")
+                                    .post(requestBody)
+                                    .build();
+                            //发送请求获取响应
+                            try {
+                                Response response=okHttpClient.newCall(request).execute();
+                                //判断请求是否成功
+                                if(response.isSuccessful()){
+                                    //打印服务端返回结果
+                                    Log.e("Success", "success!!!!!!!!!" );
+
+                                }
+
+
+                                LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(Personal_information.this);
+                                Intent intent = new Intent("com.imagePath.LOCAL_BROADCAST");
+                                intent.putExtra("userName",user.getNikname());
+                                localBroadcastManager.sendBroadcast(intent);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            //String responseData = response.body().string();
+
+                            //Log.e("personInformation:", responseData);
                             finish();
                         } catch (Exception e) {
                             e.printStackTrace();
