@@ -23,7 +23,7 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
             + "user_from_id integer, "
             + "to_id integer,"
             + "text_type integer,"
-            + "message_id integer  primary key,"
+            + "message_id integer  primary key AUTOINCREMENT,"
             + "message_type integer,"
             + "text_content text,"
             + "date datetime)";

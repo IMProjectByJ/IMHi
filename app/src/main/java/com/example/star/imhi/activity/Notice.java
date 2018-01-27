@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.example.star.imhi.DAO.pojo.Notice_entity;
 import com.example.star.imhi.DAO.pojo.User;
@@ -28,7 +30,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class Notice extends AppCompatActivity {
+public class Notice extends AppCompatActivity implements View.OnClickListener {
     private List<Notice_entity> noticeList = new ArrayList<>();
     NoticeAdapter adapter;
     private MyDatabaseHelper dbHelper;
@@ -39,6 +41,8 @@ public class Notice extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notice);
+        LinearLayout noticeback = (LinearLayout) findViewById(R.id.noticeback);
+        noticeback.setOnClickListener(Notice.this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.noticerecylerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -120,5 +124,15 @@ public class Notice extends AppCompatActivity {
             nikname = cursor.getString(cursor.getColumnIndex("nikname"));
         }
         return nikname;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.noticeback:
+                finish();
+                break;
+        }
+
     }
 }

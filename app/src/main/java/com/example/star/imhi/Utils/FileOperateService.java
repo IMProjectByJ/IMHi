@@ -1,7 +1,11 @@
 package com.example.star.imhi.Utils;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -64,6 +68,14 @@ public class FileOperateService {
             e.printStackTrace();
         }
         return  null;
+    }
+
+    public static Bitmap imgdecode(Response response){
+        ResponseBody body = response.body();
+        InputStream is = body.byteStream();
+        Bitmap bitmap = BitmapFactory.decodeStream(is);
+
+        return bitmap;
     }
 
 }
