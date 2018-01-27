@@ -23,13 +23,13 @@
 
     <!--Strings to some compile-->
 
-        <string name="postUrl">http://192.168.43.23:8080/</string>
+        <string name="postUrl">http://192.168.253.1:8080/</string>
     <string name="title_activity_login2">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="hello_world">Hello world!</string>
     <string name="show_dialog">Show WaitDialog</string>
     <string name="please_wait">请稍后...</string>
-    <string name= "socketUrl">192.168.43.23</string>
+    <string name= "socketUrl">192.168.253.1</string>
     <string name = "socketPort">8888</string>
     <string name="denglulnfo">5</string>
     <string name="denglucommit">6</string>
@@ -47,7 +47,7 @@
     <string name="tip_phone_regex_not_right">手机号码格式不正确</string>
     <string name="count_down">%ss</string>
 
-    <string name="requestAddr">http://192.168.43.23</string>
+    <string name="requestAddr">http://192.168.253.1</string>
     <string name="port">8080</string>
 
     <string name="input_hint">发送消息</string>

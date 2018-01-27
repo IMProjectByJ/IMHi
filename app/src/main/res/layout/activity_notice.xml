@@ -5,8 +5,54 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.star.imhi.activity.Notice">
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/noticerecylerView"
+    <LinearLayout
         android:layout_width="match_parent"
-       android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        //标题栏
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#454545"
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:layout_marginBottom="5dp">
+            <LinearLayout
+                android:id="@+id/noticeback"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@drawable/back" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="返回"
+                    android:textSize="17dp"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"/>
+            </LinearLayout>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:text="通知"
+                android:textSize="18dp"
+                android:textColor="#FFFFFF"
+                android:gravity="center"/>
+            <ImageView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        //----标题栏
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/noticerecylerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

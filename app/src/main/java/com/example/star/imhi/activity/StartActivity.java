@@ -1,14 +1,9 @@
 package com.example.star.imhi.activity;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -16,11 +11,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
@@ -30,7 +23,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -113,9 +105,8 @@ public class StartActivity extends BaseActivity {
     private String token;
     private TextView tNi;
     private TextView tAge;
-    private TextView tBirth;
     //yuyisummer
-    private  String strange;
+    private String strange;
     private Handler hander = new Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -135,8 +126,8 @@ public class StartActivity extends BaseActivity {
                 case "3":
                     try {
                         String friendid = jsonObject.getString("friend_id");
-                        Log.e("Handler","AddChatItem");
-                        AddChatItem(friendtype,friendid, jsonObject.getString("new_id"),
+                        Log.e("Handler", "AddChatItem");
+                        AddChatItem(friendtype, friendid, jsonObject.getString("new_id"),
                                 jsonObject.getString("message_num"));
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -161,7 +152,6 @@ public class StartActivity extends BaseActivity {
         headImg = (ImageView) findViewById(R.id.head_image);
         tNi = (TextView) findViewById(R.id.nicheng);
         tAge = (TextView) findViewById(R.id.tAge);
-        tBirth = (TextView) findViewById(R.id.tBirth);
 
         Log.e("token", token);
         Log.e("-------token:", token + "is null?");
@@ -479,13 +469,13 @@ public class StartActivity extends BaseActivity {
 //                            intent.setAction("com.bs.showMsg");
 //                        }
 //                    }
-                    Log.e("startActivity","进入了case 2");
+                    Log.e("startActivity", "进入了case 2");
                     try {
                         type2_str = new JSONObject(str1);
                         String userFormId = "";
                         userFormId = type2_str.getString("userFromId");
                         Chating chating = new Chating();
-                        if ( Integer.valueOf(userFormId) == chating.getChating()) {
+                        if (Integer.valueOf(userFormId) == chating.getChating()) {
                             intent.setAction("com.bs.showMsg");
                             sendBroadcast(intent);
                         }
@@ -499,7 +489,7 @@ public class StartActivity extends BaseActivity {
                         } else if (message_type1 == 3) {
                             friendtype = "2";
                         }
-                        Log.e("startacitvity","case 23");
+                        Log.e("startacitvity", "case 23");
                         AddChatItem(friendtype, userFormId, newid, "1");
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -631,7 +621,6 @@ public class StartActivity extends BaseActivity {
                                             List<HistoryMessage> list = gson.fromJson(responseData, new TypeToken<List<HistoryMessage>>() {
                                             }.getType());
 
-
                                             Cursor cursor1;
                                             for (i = 0; i < list.size(); i++) {
                                                 HistoryMessage historyMessage = list.get(i);
@@ -644,7 +633,7 @@ public class StartActivity extends BaseActivity {
                                                 values.put("text_content", historyMessage.getTextContent());
                                                 values.put("date", String.valueOf(historyMessage.getDate()));
 
-                                                if(historyMessage.getMessageType().equals("8")){
+                                                if (historyMessage.getMessageType().equals("8")) {
                                                     FindStrangeInfo(String.valueOf(historyMessage.getUserFromId()));
                                                 }
 
@@ -697,8 +686,8 @@ public class StartActivity extends BaseActivity {
                         String userFormId = "";
                         String newid = str.getString("messageId");
                         userFormId = str.getString("userFromId");
-                        if(message_type1 == 8){
-                            passiveAddNikname(userFormId,intent.getStringExtra("nikname"));
+                        if (message_type1 == 8) {
+                            passiveAddNikname(userFormId, intent.getStringExtra("nikname"));
                         }
                         if (message_type1 == 8 || message_type1 == 9) {
                             friendtype = "3";
@@ -713,6 +702,22 @@ public class StartActivity extends BaseActivity {
                         e.printStackTrace();
                     }
                     System.out.println("type8需要的str" + str);
+                    break;
+                case "25":
+//                    jsonObject.put("fromwho",user2.getId());
+//                    jsonObject.put("type",user2.getType());
+                    Log.e("start case","25");
+                    JSONObject jsonObject1;
+                    try {
+                        jsonObject1 = new JSONObject(intent.getStringExtra("textcontent"));
+                        Log.e("start case","set to zero");
+                   tab1Fragment.getAdapter().SetToZero(
+                           jsonObject1.getString("fromwho"),
+                           jsonObject1.getInt("type"));
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }
@@ -797,12 +802,16 @@ public class StartActivity extends BaseActivity {
             }
 
             if (age != null && !age.equals("") && !age.equals(tAge.getText().toString())) {
-                tAge.setText(age);
+
+                if (birth != null && !birth.equals("")) {
+                    tAge.setText(age+" "+birth);
+                }
+                else {
+                    tAge.setText(age);
+                }
             }
 
-            if (birth != null && !birth.equals("") && !birth.equals(tBirth.getText().toString())) {
-                tBirth.setText(birth);
-            }
+
 
         }
     }
@@ -840,51 +849,13 @@ public class StartActivity extends BaseActivity {
         }
     }
 
-    //------------------------------------home键--------------------------------------
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_HOME) {
-            Log.e("home键", "*********");
-            Intent intenthome = new Intent(StartActivity.this, StartActivity.class);
-            PendingIntent pi = PendingIntent.getActivity(this, 0, intenthome, 0);
-            // 创建一个NotificationManager的引用
-            NotificationManager notificationManager = (NotificationManager) getSystemService(android.content.Context.NOTIFICATION_SERVICE);
-            // 定义Notification的各种属性
-            Notification notification = new Notification.Builder(this)
-                    .setSmallIcon(R.mipmap.app)
-                    .setTicker("This is ticker text")
-                    .setWhen(System.currentTimeMillis())
-                    .setContentTitle("Hi")
-                    .setContentText("hi正在后台运行")
-                    .setAutoCancel(true)
-                    .setContentIntent(pi)
-                    .build();
-            notificationManager.notify(0, notification);
-            return true;
-        }
-        //------------------------------back键------------------------------------------
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Log.e("back键", "#D########");
-            AlertDialog.Builder dialog = new AlertDialog.Builder(StartActivity.this);
-            dialog.setTitle("Hi");
-            dialog.setMessage("确定退出？");
-            dialog.setCancelable(false);
-            dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    System.exit(0);
-                }
-            });
-            dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-            dialog.show();
-        }
-        return super.onKeyDown(keyCode, event);
+    public void onBackPressed() {
+        //back键实现home键效果
+        Intent i= new Intent(Intent.ACTION_MAIN);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addCategory(Intent.CATEGORY_HOME);
+        startActivity(i);
     }
 
     public String FindNikname(String user_id) {
@@ -916,15 +887,16 @@ public class StartActivity extends BaseActivity {
                 nikname = "申请通知";
                 break;
         }
-        Log.e("startacitvity","AddChatItem");
+        Log.e("startacitvity", "AddChatItem");
         tab1Fragment.getAdapter().addItem(friend_id, Integer.valueOf(friend_type),
                 Integer.valueOf(new_id), nikname, messagenum);
     }
-    public void FindStrangeInfo(final String user_id){
-        strange = user_id;
-        if(FindNikname(strange) == null){
 
-           new Thread(new Runnable() {
+    public void FindStrangeInfo(final String user_id) {
+        strange = user_id;
+        if (FindNikname(strange) == null) {
+
+            new Thread(new Runnable() {
 
                 @Override
                 public void run() {
@@ -941,32 +913,32 @@ public class StartActivity extends BaseActivity {
 
                         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-                            JSONObject temp = new JSONObject(user_str);
-                            int userid = temp.getInt("userId");
-                            String phone_num = temp.getString("phoneNum");
-                            String nikname = temp.getString("nikname");
-                            System.out.println(userid + " " + phone_num + " " + nikname + " ");
-                            //进行数据库个人简单信息的插入
-                            ContentValues values = new ContentValues();
+                        JSONObject temp = new JSONObject(user_str);
+                        int userid = temp.getInt("userId");
+                        String phone_num = temp.getString("phoneNum");
+                        String nikname = temp.getString("nikname");
+                        System.out.println(userid + " " + phone_num + " " + nikname + " ");
+                        //进行数据库个人简单信息的插入
+                        ContentValues values = new ContentValues();
+                        values.put("user_id", userid);
+                        values.put("phone_num", phone_num);
+                        values.put("nikname", nikname);
+
+                        Cursor cursor;
+                        cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{strange}, null, null, null);
+                        if (cursor.getCount() == 0) {
                             values.put("user_id", userid);
-                            values.put("phone_num", phone_num);
-                            values.put("nikname", nikname);
+                            long retval = db.insert("Friends", null, values);
 
-                            Cursor cursor;
-                            cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{strange}, null, null, null);
-                            if (cursor.getCount() == 0) {
-                                values.put("user_id", userid);
-                                long retval = db.insert("Friends", null, values);
+                            if (retval == -1)
+                                Log.e("个人信息插入", "failed");
+                            else
+                                Log.e("个人信息插入", "success " + retval);
+                        } else {
 
-                                if (retval == -1)
-                                    Log.e("个人信息插入", "failed");
-                                else
-                                    Log.e("个人信息插入", "success " + retval);
-                            } else {
-
-                                int update = db.update("Friends", values, "user_id=?", new String[]{strange});
-                                Log.e("个人信息更新", "数量 " + update);
-                            }
+                            int update = db.update("Friends", values, "user_id=?", new String[]{strange});
+                            Log.e("个人信息更新", "数量 " + update);
+                        }
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -978,10 +950,11 @@ public class StartActivity extends BaseActivity {
 
         }
     }
-    public void passiveAddNikname(String user_id,String nikname){
+
+    public void passiveAddNikname(String user_id, String nikname) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("user_id",user_id);
+        values.put("user_id", user_id);
         values.put("nikname", nikname);
         Cursor cursor;
         cursor = db.query("Friends", new String[]{"user_id"}, "user_id=?", new String[]{user_id}, null, null, null);
@@ -996,9 +969,6 @@ public class StartActivity extends BaseActivity {
             int update = db.update("Friends", values, "user_id=?", new String[]{user_id});
             Log.e("个人信息更新", "数量 " + update);
         }
-
-
-
 
     }
 

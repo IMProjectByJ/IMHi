@@ -37,7 +37,7 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
         public ViewHolder(View itemView) {
             super(itemView);
             clickview = itemView;
-            // chatlistimage = (ImageView) itemView.findViewById(R.id.touxiang);
+            chatlistimage = (ImageView) itemView.findViewById(R.id.touxiang);
             chatlistwho = (TextView) itemView.findViewById(R.id.fromwho);
             chatlistwhat = (TextView) itemView.findViewById(R.id.whatcontext);
         }
@@ -114,6 +114,15 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
             notifyItemChanged(weizhi);
         }
     }
-
+    public void SetToZero (String fromwho, int type){
+        Log.e("chatlistAdapterr", "settozero引用成功");
+        String key = fromwho + "|" + type;
+        Integer weizhi = map.get(key);
+        Log.e("chatlistAdapterr", key);
+        Log.e("chatlistAdapterr", String.valueOf(weizhi));
+        if(!mchatlist.get(weizhi).getMessagenum().equals("0"))
+        mchatlist.get(weizhi).setMessagenum("0");
+        notifyItemChanged(weizhi);
+    }
 
 }

@@ -38,14 +38,14 @@
             android:textSize="18dp"
             android:gravity="center"
             android:text="请完善个人信息"/>
-        <TextView
-            android:id="@+id/tBirth"
-            android:layout_marginLeft="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18dp"
-            android:gravity="center"
-            android:text="请完善个人信息"/>
+        <!--<TextView-->
+            <!--android:id="@+id/tBirth"-->
+            <!--android:layout_marginLeft="20dp"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="18dp"-->
+            <!--android:gravity="center"-->
+            <!--android:text="请完善个人信息"/>-->
     </LinearLayout>
     <LinearLayout
         android:id="@+id/age"

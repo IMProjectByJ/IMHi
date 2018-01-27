@@ -31,9 +31,8 @@
 
         <activity
             android:name=".UI.LoginActivity"
-            android:launchMode="singleTask"
             android:label="">
-            <intent-filter android:label="QQ">
+            <intent-filter android:label="Hi">
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -58,11 +57,14 @@
         <activity android:name=".activity.Picture" />
         <activity android:name=".activity.ShowPicture" />
         <activity android:name=".activity.MainActivity" />
-        <activity android:name=".message.MessageListActivity"/>
+        <activity android:name=".message.MessageListActivity"
+                    android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".message.VideoActivity"/>
         <activity
             android:name=".activity.Message"
-            android:label="" />
+            android:label=""
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity
             android:name=".activity.Setting"
             android:label="" />
