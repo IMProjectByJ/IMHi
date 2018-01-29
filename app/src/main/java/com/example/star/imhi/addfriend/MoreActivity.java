@@ -40,11 +40,17 @@ public class MoreActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Gson gson = new Gson();
         User user = gson.fromJson(intent.getStringExtra("user"), User.class);
+
+        if (user == null) {
+            Log.e("MOREUSER:", "is NULL" );
+        } else {
+            Log.e("MOREUSER:", user.toString());
+        }
         TextView t_age = (TextView)findViewById(R.id.age);
         TextView t_birthday = (TextView)findViewById(R.id.birthday);
         TextView t_personal_message = (TextView)findViewById(R.id.personal_message);
 
-        if (user.getAge() == 0) {
+        if (user.getAge() == 0 || user.getAge() == null) {
             t_age.setText("0");
         } else {
             t_age.setText(user.getAge().toString());

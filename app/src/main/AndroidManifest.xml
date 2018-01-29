@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.star.imhi"
-    >
+    package="com.example.star.imhi">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -16,9 +15,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -28,7 +27,6 @@
         android:supportsRtl="true"
         android:theme="@style/home"
         tools:replace="android:icon, android:label,android:theme">
-
         <activity
             android:name=".UI.LoginActivity"
             android:label="">
@@ -38,55 +36,50 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
-
         <activity
             android:name=".activity.StartActivity"
-            android:launchMode="singleTask"
             android:label=""
-            />
-        <activity android:name=".UI.MainActivity"/>
-        <service android:name=".mina.MyService"/>
-        <activity android:name=".UI.HomepageActivity"/>
-        <activity android:name=".activity.Notice"/>
-        <activity android:name="com.example.star.imhi.UI.ForgetActivity" />
-        <activity android:name="com.example.star.imhi.UI.SignupActivity"/>
+            android:launchMode="singleTask" />
+        <activity android:name=".UI.MainActivity" />
+
+        <service android:name=".mina.MyService" />
+
+        <activity android:name=".UI.HomepageActivity" />
+        <activity android:name=".activity.Notice" />
+        <activity android:name=".UI.ForgetActivity" />
+        <activity android:name=".UI.SignupActivity" />
         <activity android:name=".activity.Camera" />
         <activity android:name=".activity.Picture" />
         <activity android:name=".activity.ShowPicture" />
         <activity android:name=".activity.MainActivity" />
-        <activity android:name=".message.MessageListActivity"
-                    android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".message.VideoActivity"/>
+        <activity
+            android:name=".message.MessageListActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".message.VideoActivity" />
         <activity
             android:name=".activity.Message"
             android:label=""
-            android:windowSoftInputMode="adjustResize">
-        </activity>
+            android:windowSoftInputMode="adjustResize"></activity>
         <activity
             android:name=".activity.Setting"
             android:label="" />
-        <activity android:name=".activity.HomePage"></activity>
+        <activity android:name=".activity.HomePage" />
 
-
-
-        <!--<provider-->
-            <!--android:name="android.support.v4.content.FileProvider"-->
-            <!--android:authorities="com.dc.tx.fileprovider.IMAGE_CAPTURE"-->
-            <!--android:exported="false"-->
-            <!--android:grantUriPermissions="true">-->
-            <!--<meta-data-->
-                <!--android:name="android.support.FILE_PROVIDER_PATHS"-->
-                <!--android:resource="@xml/picture_paths" />-->
-        <!--</provider>-->
+        <!-- <provider -->
+        <!-- android:name="android.support.v4.content.FileProvider" -->
+        <!-- android:authorities="com.dc.tx.fileprovider.IMAGE_CAPTURE" -->
+        <!-- android:exported="false" -->
+        <!-- android:grantUriPermissions="true"> -->
+        <!-- <meta-data -->
+        <!-- android:name="android.support.FILE_PROVIDER_PATHS" -->
+        <!-- android:resource="@xml/picture_paths" /> -->
+        <!-- </provider> -->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.lt.uploadpicdemo.fileProvider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
@@ -98,13 +91,10 @@
             android:logo="@drawable/left" />
         <activity android:name=".addfriend.MoreActivity" />
         <activity android:name=".addfriend.RemarksActivity" />
-        <activity android:name=".addfriend.AddFriendActivity"></activity>
+        <activity android:name=".addfriend.AddFriendActivity" />
         <activity android:name=".personally.Personal_information" />
-        <activity android:name=".personally.PersonalMoreActivity"></activity>
-
-
-
+        <activity android:name=".personally.PersonalMoreActivity" />
+        <activity android:name=".addfriend.GroupChatActivity"></activity>
     </application>
-
 
 </manifest>

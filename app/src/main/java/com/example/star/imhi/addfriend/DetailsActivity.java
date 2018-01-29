@@ -1,6 +1,8 @@
 package com.example.star.imhi.addfriend;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -39,8 +41,12 @@ public class DetailsActivity extends AppCompatActivity {
     private ImageView headImg;
     private Button btn_send;
     private Button btn_del;
+    private SharedPreferences sp;
+    private String userId;
 
     Intent intent_message;
+    private static final String PREFERENCE_NAME = "userInfo";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +73,9 @@ public class DetailsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(DetailsActivity.this, MoreActivity.class);
                 Gson gson = new Gson();
-                User user = gson.fromJson(intent_message.getStringExtra("user"), User.class);
-                intent.putExtra("user", gson.toJson(user));
+                User user1 = gson.fromJson(intent_message.getStringExtra("person_user"), User.class);
+                Log.e("user1----:", user1.toString());
+                intent.putExtra("user", gson.toJson(user1));
                 startActivity(intent);
             }
         });
@@ -80,6 +87,7 @@ public class DetailsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        setButtonAction();
     }
 
     private void setButtonAction() {
@@ -93,8 +101,47 @@ public class DetailsActivity extends AppCompatActivity {
         btn_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        OkHttpClient okHttpClient = new OkHttpClient();
+                        Request request;
+                        Log.e("TEST1:", userId+" null");
+                        Log.e("TEST2:", user.getUserId().toString() + " null");
+                        request = new Request.Builder().url(getString(R.string.postUrl) + "api/friend/delFriend/" + userId  + "/" + user.getUserId().toString() + "/" + 2).build();
 
-            }
+                        try {
+                            Response response = okHttpClient.newCall(request).execute();
+                            String responseData = response.body().string();
+
+                            Log.e("Friend-----:", responseData);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        request = new Request.Builder().url(getString(R.string.postUrl) + "api/friend/delHisatory/" + userId  + "/" + user.getUserId().toString() + "/" + 2).build();
+                        try {
+                            Response response = okHttpClient.newCall(request).execute();
+                            String responseData = response.body().string();
+
+                            Log.e("Friend-----:", responseData);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        request = new Request.Builder().url(getString(R.string.postUrl) + "api/friend/delNumInfo/" + userId  + "/" + user.getUserId().toString() + "/" + 1).build();
+                        try {
+                            Response response = okHttpClient.newCall(request).execute();
+                            String responseData = response.body().string();
+
+                            Log.e("Friend-----:", responseData);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }).start();
+        }
         });
 
     }
@@ -114,7 +161,9 @@ public class DetailsActivity extends AppCompatActivity {
         headImg = (ImageView)findViewById(R.id.head_img);
         btn_send = (Button) findViewById(R.id.btn_send);
         btn_del = (Button) findViewById(R.id.btn_del);
+        sp = getSharedPreferences(PREFERENCE_NAME, Activity.MODE_PRIVATE);
 
+        userId = sp.getString("userId", "");
         Log.e("USER----!", user.toString() );
 
         t_name.setText(user.getNikname());
@@ -129,56 +178,6 @@ public class DetailsActivity extends AppCompatActivity {
         getHeadImg(user.getUserId().toString());
     }
 
-//    private void setHeadImage(final String imgUrl) {
-//        final ImageView imageView = (ImageView) findViewById(R.id.head_img);
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                URL url = null;
-//                HttpURLConnection connection = null;
-//                try {
-//                    url = new URL(imgUrl);
-//                    connection = (HttpURLConnection) url.openConnection();
-//                    connection.setRequestMethod("GET");
-//                    connection.setReadTimeout(5000);
-//                    connection.setDoInput(true);
-//                    File parent = Environment.getExternalStorageDirectory();
-//                    File file = new File(parent, String.valueOf(System.currentTimeMillis()));
-//                    FileOutputStream fos = new FileOutputStream(file);
-//                    InputStream in = connection.getInputStream();
-//                    Log.e("file path:", file.getAbsolutePath());
-//
-//                    byte ch[] = new byte[1024 * 2];
-//                    int len;
-//                    if (fos != null) {
-//                        while ((len = in.read(ch)) != -1) {
-//                            fos.write(ch, 0, len);
-//                        }
-//                        in.close();
-//                        fos.close();
-//                    }
-//
-//                    final Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-//                    Handler handler = new Handler();
-//                    handler.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            if (bitmap != null) {
-//                                imageView.setImageBitmap(bitmap);
-//                            }
-//                        }
-//                    });
-//
-//                } catch (MalformedURLException e) {
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//    }
     public void getHeadImg(final String uid){
         new Thread(new Runnable() {
             @Override

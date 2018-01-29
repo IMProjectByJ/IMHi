@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.star.imhi.DAO.pojo.GroupChat;
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.FileOperateService;
@@ -45,6 +46,7 @@ public class AddFriendActivity extends AppCompatActivity {
     ImageView imageView;
     Button btn_addfriend;
     TextView textView;
+    private GroupChat groupChat = new GroupChat();
     private ImageView headImg;
     private LinearLayout search;
     private SharedPreferences sp;
@@ -79,6 +81,7 @@ public class AddFriendActivity extends AppCompatActivity {
 
         editText = (EditText) findViewById(R.id.search_msg);
         search = (LinearLayout) findViewById(R.id.search);
+        textView = (TextView) findViewById(R.id.search_person);
         sp = getSharedPreferences(PREFERENCE_NAME, Activity.MODE_PRIVATE);
         final String aimPhoneNumber = editText.getText().toString();
 
@@ -152,6 +155,9 @@ public class AddFriendActivity extends AppCompatActivity {
                 Request request;
                 if(Mobile.length() == 11)
                     request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_number/" + editText.getText().toString()).build();
+                else if (Mobile.length() == 4) {
+                    request = new Request.Builder().url(getString(R.string.postUrl) +"api/groupchat/findGroup/id/" + editText.getText().toString()).build();
+                }
                 else
                     request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_uid/" + editText.getText().toString()).build();
                 try {
@@ -167,8 +173,25 @@ public class AddFriendActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                textView = (TextView) findViewById(R.id.search_person);
                                 textView.setText(user.getNikname());
+                            }
+                        });
+                    } else if (jsonObject.getString("message") != null && jsonObject.optString("message").equals("查询成功")) {
+                        Gson gson = new Gson();
+                        Log.e("result:", jsonObject.optString("result"));
+                        groupChat = gson.fromJson(jsonObject.optString("result"), GroupChat.class);
+                        if (groupChat != null) {
+                            Log.e("message:", jsonObject.optString("message"));
+                            Log.e("groupChat", groupChat.toString());
+                        } else {
+                            //Log.e("message:", groupChat.getGroup_id());
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                textView.setText(groupChat.getGroupName());
                             }
                         });
                     } else {

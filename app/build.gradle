@@ -8,7 +8,7 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-        useLibrary'org.apache.http.legacy'
+        useLibrary 'org.apache.http.legacy'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -69,8 +69,6 @@ dependencies {
     compile 'pub.devrel:easypermissions:1.0.1'
     compile 'cn.jiguang.imui:messagelist:0.5.8'
     compile 'cn.jiguang.imui:chatinput:0.6.3'
-
-
 
 
 }
