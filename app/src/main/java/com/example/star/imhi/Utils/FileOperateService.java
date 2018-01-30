@@ -69,6 +69,22 @@ public class FileOperateService {
         }
         return  null;
     }
+    public static Request createQun(String token, String qunName, String fileName, String filePath, String url){
+        File file = new File(filePath);
+        RequestBody fileBody = RequestBody.create(MediaType.parse(OkHttpUtils.getMimeType(file.getName())), file);
+        RequestBody requestBody = new MultipartBody.Builder()
+                .addFormDataPart("head",fileName,fileBody)
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("groupName",qunName+"")
+                .build();
+        Request request =  new Request.Builder()
+                //   .header("token",token)// 获得token
+                .header("token",token)
+                .url(url)
+                .post(requestBody)
+                .build();
+        return request;
+    }
 
     public static Bitmap imgdecode(Response response){
         ResponseBody body = response.body();

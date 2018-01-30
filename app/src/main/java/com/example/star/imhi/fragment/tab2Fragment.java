@@ -15,6 +15,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.example.star.imhi.R;
+import com.example.star.imhi.activity.Createqun;
 import com.example.star.imhi.addfriend.*;
 
 import java.util.Map;
@@ -30,6 +31,8 @@ public class tab2Fragment extends android.support.v4.app.Fragment implements Vie
     private Fragment[] mFragments;
     private LinearLayout newfriends;
     private int mIndex;
+    private LinearLayout btn_createQun;
+
     private String applicationContext;
     Map<String,String> content;
     //好友
@@ -52,6 +55,9 @@ public class tab2Fragment extends android.support.v4.app.Fragment implements Vie
         hRadioGroup = (RadioGroup) view.findViewById(R.id.home_radioGroup);
         newfriends = (LinearLayout) view.findViewById(R.id.newfriend);
         newfriends.setOnClickListener(this);
+        btn_createQun = (LinearLayout) view.findViewById(R.id.btn_createQun);
+        btn_createQun.setOnClickListener(this);
+
 
         initFragment();
         initEvent1();
@@ -65,6 +71,15 @@ public class tab2Fragment extends android.support.v4.app.Fragment implements Vie
                 Context context = getActivity();
                 Intent intent = new Intent(context,AddFriendActivity.class);
                 context.startActivity(intent);
+                break;
+            case R.id.btn_createQun:
+                Context context1 = getActivity();
+                Intent intent1 = new Intent(context1,Createqun.class);
+                context1.startActivity(intent1);
+                break;
+            default:
+                break;
+
         }
     }
 

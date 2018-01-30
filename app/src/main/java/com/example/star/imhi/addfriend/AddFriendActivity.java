@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.star.imhi.DAO.pojo.GroupChat;
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.FileOperateService;
@@ -32,6 +33,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -45,6 +49,7 @@ public class AddFriendActivity extends AppCompatActivity {
     ImageView imageView;
     Button btn_addfriend;
     TextView textView;
+    private GroupChat groupChat;
     private ImageView headImg;
     private LinearLayout search;
     private SharedPreferences sp;
@@ -95,24 +100,40 @@ public class AddFriendActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //yuyisummer 且这里不能等于自己，
+                SharedPreferences preferences = getSharedPreferences("userInfo", Context.MODE_PRIVATE);
+                String user_id = preferences.getString("userId", "1");
+                JSONObject json = new JSONObject();
                 if (user != null ) {
-                 //   Intent intent = new Intent(AddFriendActivity.this, DetailsActivity.class);
-                   // intent.putExtra("user", new Gson().toJson(user));
-                   // startActivity(intent);
-                    JSONObject json = new JSONObject();
-                    try {
-                        SharedPreferences preferences=getSharedPreferences("userInfo", Context.MODE_PRIVATE);
-                        String user_id=preferences.getString("userId","1");
-                        json.put("from",user_id);
-                        json.put("to",user.getUserId());
-                        json.put("message_type","8");
+                    //   Intent intent = new Intent(AddFriendActivity.this, DetailsActivity.class);
+                    // intent.putExtra("user", new Gson().toJson(user));
+                    // startActivity(intent);
 
+                    try {
+
+                        json.put("from", user_id);
+                        json.put("to", user.getUserId());
+                        json.put("message_type", "8");
+                        SessionManager.getInstance().writeMag(json);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else  if(groupChat != null){
+                    try {
+                        json.put("from", user_id);
+                        json.put("to",groupChat.getGroupId());
+                        json.put("message_type", "11");
+                        Date date = new Date();
+                        json.put("date",new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(date));
+                        SessionManager.getInstance().writeMag(json);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
-                    SessionManager.getInstance().writeMag(json);
+
                 }
+
+                    user = null;
+                    groupChat = null;
             }
         });
         editText.addTextChangedListener(new TextWatcher() {
@@ -152,7 +173,9 @@ public class AddFriendActivity extends AppCompatActivity {
                 Request request;
                 if(Mobile.length() == 11)
                     request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_number/" + editText.getText().toString()).build();
-                else
+                else if (Mobile.length() == 4) {
+                    request = new Request.Builder().url(getString(R.string.postUrl) +"api/groupchat/findGroup/id/" + editText.getText().toString()).build();
+                } else
                     request = new Request.Builder().url(getString(R.string.postUrl) +"api/user/add_search_by_uid/" + editText.getText().toString()).build();
                 try {
                     Response response = client.newCall(request).execute();
@@ -169,6 +192,24 @@ public class AddFriendActivity extends AppCompatActivity {
                             public void run() {
                                 textView = (TextView) findViewById(R.id.search_person);
                                 textView.setText(user.getNikname());
+                            }
+                        });
+                    } else if (jsonObject.getString("message") != null && jsonObject.optString("message").equals("查询成功")) {
+                        Gson gson = new Gson();
+                        Log.e("result:", jsonObject.optString("result"));
+                        groupChat = gson.fromJson(jsonObject.optString("result"), GroupChat.class);
+                        if (groupChat != null) {
+                            Log.e("message:", jsonObject.optString("message"));
+                            Log.e("groupChat", groupChat.toString());
+                        } else {
+                            //Log.e("message:", groupChat.getGroup_id());
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                textView = (TextView) findViewById(R.id.search_person);
+                                textView.setText(groupChat.getGroupName());
                             }
                         });
                     } else {

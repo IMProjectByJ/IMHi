@@ -59,7 +59,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -107,6 +109,7 @@ public class StartActivity extends BaseActivity {
     private TextView tAge;
     //yuyisummer
     private String strange;
+    List<Numinfo> groupnuminfo = new ArrayList<>();
     private Handler hander = new Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -122,8 +125,17 @@ public class StartActivity extends BaseActivity {
 
             switch (friendtype) {
                 case "1":
-                case "2":
                 case "3":
+                    try {
+                        String friendid = jsonObject.getString("friend_id");
+                        Log.e("Handler", "AddChatItem");
+                        AddChatItem(friendtype, friendid, jsonObject.getString("new_id"),
+                                jsonObject.getString("message_num"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case "2":
                     try {
                         String friendid = jsonObject.getString("friend_id");
                         Log.e("Handler", "AddChatItem");
@@ -230,10 +242,11 @@ public class StartActivity extends BaseActivity {
 
         SharedPreferences preferences = getSharedPreferences("userInfo", Context.MODE_PRIVATE);
         String friendlist = preferences.getString("friendlist", null);
+        String grouplist = preferences.getString("grouplist", null);
         Log.e("start+friendlist", friendlist);
-
+        Log.e("start+grouplist", grouplist);
         home1Fragment = new home1Fragment(friendlist);
-        home2Fragment = new home2Fragment();
+        home2Fragment = new home2Fragment(grouplist);
         tab2Fragment = new tab2Fragment(home1Fragment, home2Fragment);
         mFragments.add(tab2Fragment);
         mFragments.add(new tab3Fragment());
@@ -459,25 +472,29 @@ public class StartActivity extends BaseActivity {
                     Log.e("type case2", str1);
 
                     JSONObject type2_str = null;
-
-//                    if (textcontent != null) {
-//                        JSONObject jsonObject1 = new JSONObject(textcontent);
-//                        String messagetype = jsonObject1.getString("messageType");
-//                        int userfromid = jsonObject1.getInt("userFromId");
-//                        Chating chating = new Chating();
-//                        if (messagetype.equals("2") && userfromid == chating.getChating()) {
-//                            intent.setAction("com.bs.showMsg");
-//                        }
-//                    }
                     Log.e("startActivity", "进入了case 2");
                     try {
                         type2_str = new JSONObject(str1);
                         String userFormId = "";
                         userFormId = type2_str.getString("userFromId");
+                        String to = type2_str.getString("toId");
                         Chating chating = new Chating();
-                        if (Integer.valueOf(userFormId) == chating.getChating()) {
-                            intent.setAction("com.bs.showMsg");
-                            sendBroadcast(intent);
+                        if (message_type.equals("2")) {
+                            Log.e("start message", message_type);
+                            to =userFormId;
+                            if (userFormId.equals(chating.getChating(
+                            ))) {
+                                intent.setAction("com.bs.showMsg");
+                                sendBroadcast(intent);
+                            }
+                        } else if(message_type.equals("3")){
+                            Log.e("start message", message_type);
+                            String key = to+"|2";
+                            Log.e("start message key", key);
+                            if (key.equals(chating.getChating())) {
+                                intent.setAction("com.bs.showMsg");
+                                sendBroadcast(intent);
+                            }
                         }
 
                         int message_type1 = type2_str.getInt("messageType");
@@ -490,7 +507,7 @@ public class StartActivity extends BaseActivity {
                             friendtype = "2";
                         }
                         Log.e("startacitvity", "case 23");
-                        AddChatItem(friendtype, userFormId, newid, "1");
+                        AddChatItem(friendtype, to, newid, "1");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -523,10 +540,12 @@ public class StartActivity extends BaseActivity {
 
                             String[] fromwho = key.split("\\|");
 
+                            System.out.println("start fromwoh" + fromwho[0] + " " + fromwho[1]);
+
                             if (fromwho[1].equals("1")) {
                                 oldIdCursor = db.query("history_message", new String[]{"max(message_id)"}, "message_type=?", new String[]{"2"}, null, null, null);
                             } else if (fromwho[1].equals("2")) {
-                                oldIdCursor = db.query("history_message", new String[]{"max(message_id)"}, "message_type=?", new String[]{"2"}, null, null, null);
+                                oldIdCursor = db.query("history_message", new String[]{"max(message_id)"}, "message_type=? and to_id=? ", new String[]{"2", fromwho[0]}, null, null, null);
                             } else if (fromwho[1].equals("3")) {
                                 oldIdCursor = db.query("history_message", new String[]{"max(message_id)"}, "message_type=? or message_type=? or message_type=?", new String[]{"8", "9", "10"}, null, null, null);
                             }
@@ -567,6 +586,7 @@ public class StartActivity extends BaseActivity {
                                                 , numinfo.getFriendType()});
                                 Log.e("LoginAcitivity", "update " + update);
                             }
+                            groupnuminfo.add(numinfo);
                         }
                         localofflist = content;
                     } catch (JSONException e) {
@@ -620,7 +640,7 @@ public class StartActivity extends BaseActivity {
 
                                             List<HistoryMessage> list = gson.fromJson(responseData, new TypeToken<List<HistoryMessage>>() {
                                             }.getType());
-
+                                            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                             Cursor cursor1;
                                             for (i = 0; i < list.size(); i++) {
                                                 HistoryMessage historyMessage = list.get(i);
@@ -631,8 +651,11 @@ public class StartActivity extends BaseActivity {
                                                 values.put("message_id", historyMessage.getMessageId());
                                                 values.put("message_type", historyMessage.getMessageType());
                                                 values.put("text_content", historyMessage.getTextContent());
-                                                values.put("date", String.valueOf(historyMessage.getDate()));
-
+                                                Calendar calendar = Calendar.getInstance();
+                                                calendar.setTimeInMillis(Long.valueOf(historyMessage.getDate()));
+                                                String date = sf.format(calendar.getTime());
+                                                // values.put("date", String.valueOf(historyMessage.getDate()));
+                                                values.put("date", date);
                                                 if (historyMessage.getMessageType().equals("8")) {
                                                     FindStrangeInfo(String.valueOf(historyMessage.getUserFromId()));
                                                 }
@@ -669,6 +692,12 @@ public class StartActivity extends BaseActivity {
                         }
                     }).start();
 
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            LordOffGroup();
+                        }
+                    }).start();
                     break;
                 case "8":
                 case "9":
@@ -706,14 +735,29 @@ public class StartActivity extends BaseActivity {
                 case "25":
 //                    jsonObject.put("fromwho",user2.getId());
 //                    jsonObject.put("type",user2.getType());
-                    Log.e("start case","25");
+                    Log.e("start case", "25");
                     JSONObject jsonObject1;
                     try {
                         jsonObject1 = new JSONObject(intent.getStringExtra("textcontent"));
-                        Log.e("start case","set to zero");
-                   tab1Fragment.getAdapter().SetToZero(
-                           jsonObject1.getString("fromwho"),
-                           jsonObject1.getInt("type"));
+                        Log.e("start case", "set to zero");
+                        tab1Fragment.getAdapter().SetToZero(
+                                jsonObject1.getString("fromwho"),
+                                jsonObject1.getInt("type"));
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case "26":
+                    Log.e("start case", "26");
+                    JSONObject jsonObject26;
+                    try {
+                        jsonObject26 = new JSONObject(intent.getStringExtra("textcontent"));
+                        //String friend_type, String friend_id, String new_id, String messagenum
+
+                        AddChatItem(jsonObject26.getString("type")
+                                , jsonObject26.getString("fromwho"), jsonObject26.getString("fromwho"), "1");
+                        Log.e("start case", "set to zero");
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -804,14 +848,11 @@ public class StartActivity extends BaseActivity {
             if (age != null && !age.equals("") && !age.equals(tAge.getText().toString())) {
 
                 if (birth != null && !birth.equals("")) {
-                    tAge.setText(age+" "+birth);
-                }
-                else {
+                    tAge.setText(age + " " + birth);
+                } else {
                     tAge.setText(age);
                 }
             }
-
-
 
         }
     }
@@ -852,7 +893,7 @@ public class StartActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         //back键实现home键效果
-        Intent i= new Intent(Intent.ACTION_MAIN);
+        Intent i = new Intent(Intent.ACTION_MAIN);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addCategory(Intent.CATEGORY_HOME);
         startActivity(i);
@@ -874,6 +915,23 @@ public class StartActivity extends BaseActivity {
             return null;
     }
 
+    public String FindGroupname(String group_id) {
+        //  dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
+        SQLiteDatabase db;
+        db = dbHelper.getReadableDatabase();
+        System.out.println("group_id = " + group_id);
+        Cursor cursor;
+        cursor = db.query("GroupChat", new String[]{"groupName"},
+                "groupId=?", new String[]{group_id},
+                null, null, null);
+        Log.e("findGroupname", String.valueOf(cursor.getCount()));
+        cursor.moveToFirst();
+        if (cursor.getCount() != 0)
+            return cursor.getString(cursor.getColumnIndex("groupName"));
+        else
+            return null;
+    }
+
     public void AddChatItem(String friend_type, String friend_id, String new_id, String messagenum) {
 
         String nikname = "";
@@ -882,6 +940,7 @@ public class StartActivity extends BaseActivity {
                 nikname = FindNikname(friend_id);
                 break;
             case "2":
+                nikname = FindGroupname(friend_id);
                 break;
             case "3":
                 nikname = "申请通知";
@@ -972,4 +1031,87 @@ public class StartActivity extends BaseActivity {
 
     }
 
+    public void LordOffGroup() {
+        OkHttpClient client = new OkHttpClient();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        JSONObject jsonObject = new JSONObject();
+        for (int i = 0; i < groupnuminfo.size(); i++) {
+            Numinfo numinfo = groupnuminfo.get(i);
+            try {
+                jsonObject.put("friend_type", numinfo.getFriendType());
+                jsonObject.put("new_id", numinfo.getNewId());
+                jsonObject.put("old_id", numinfo.getOldId());
+                jsonObject.put("user_id", numinfo.getUserId());
+                jsonObject.put("friend_id", numinfo.getFriendId());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Request request;
+            String str = jsonObject.toString();
+            request = new Request.Builder().url(getString(R.string.postUrl)
+                    + "api/numinfo/selectgroup/" + str).get().build();
+
+            Response response = null;
+            try {
+                response = client.newCall(request).execute();
+                String responseData = response.body().string();
+
+                Gson gson = new Gson();
+                Log.e("最后一个 responseData", responseData);
+
+                List<HistoryMessage> list = gson.fromJson(responseData, new TypeToken<List<HistoryMessage>>() {
+                }.getType());
+
+                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Cursor cursor1;
+                System.out.println("最后一个：" + list.size());
+                for (int j = 0; j < list.size(); j++) {
+                    HistoryMessage historyMessage = list.get(j);
+                    ContentValues values = new ContentValues();
+                    values.put("user_from_id", historyMessage.getUserFromId());
+                    values.put("to_id", historyMessage.getToId());
+                    values.put("text_type", historyMessage.getTextType());
+                    values.put("message_id", historyMessage.getMessageId());
+                    values.put("message_type", historyMessage.getMessageType());
+                    values.put("text_content", historyMessage.getTextContent());
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(Long.valueOf(historyMessage.getDate()));
+                    String date = sf.format(calendar.getTime());
+                    // values.put("date", String.valueOf(historyMessage.getDate()));
+                    values.put("date", date);
+                    if (historyMessage.getMessageType().equals("8")) {
+                        FindStrangeInfo(String.valueOf(historyMessage.getUserFromId()));
+                    }
+
+                    cursor1 = db.query("history_message", new String[]{"message_id"},
+                            "message_id=?",
+                            new String[]{String.valueOf(historyMessage.getMessageId())}, null, null, null);
+                    if (cursor1.getCount() == 0) {
+                        long retval = db.insert("history_message", null, values);
+
+                        if (retval == -1)
+                            Log.e("history_message", "failed");
+                        else
+                            Log.e("history_message", "success " + retval);
+                        //  Log.e("history_message已存在", String.valueOf(historyMessage.getMessageId()));
+                    }
+                }
+
+                int num = list.size();
+                if (num != 0) {
+                    //  Numinfo numinfo1 = new Numinfo();
+                    Message msg = hander.obtainMessage();
+                    jsonObject.put("message_num", num);
+                    msg.obj = jsonObject.toString();
+                    hander.sendMessage(msg);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 }

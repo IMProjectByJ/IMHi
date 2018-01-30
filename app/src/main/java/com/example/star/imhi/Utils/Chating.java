@@ -5,15 +5,15 @@ package com.example.star.imhi.Utils;
  */
 
 public class Chating {
-    public  int getChating() {
+    public  String getChating() {
         return chating;
     }
 
-    public  void setChating(int chating) {
+    public  void setChating(String chating) {
         Chating.chating = chating;
     }
 
-    static  int chating;
+    static  String chating;
     public  Chating(){};
 
 }

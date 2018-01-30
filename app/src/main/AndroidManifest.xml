@@ -69,6 +69,8 @@
             android:name=".activity.Setting"
             android:label="" />
         <activity android:name=".activity.HomePage"></activity>
+        <activity android:name=".addfriend.GroupChatActivity"></activity>
+        <activity android:name=".activity.Createqun"></activity>
 
 
 

@@ -33,10 +33,13 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
         TextView chatlistwho;
         TextView chatlistwhat;
         View clickview;
+        View noticeview;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
             clickview = itemView;
+            noticeview = itemView;
             chatlistimage = (ImageView) itemView.findViewById(R.id.touxiang);
             chatlistwho = (TextView) itemView.findViewById(R.id.fromwho);
             chatlistwhat = (TextView) itemView.findViewById(R.id.whatcontext);
@@ -52,21 +55,42 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.chatlist, parent, false);
         final ViewHolder holder = new ViewHolder(view);
+        //长按删除
+        holder.noticeview.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                mchatlist.remove(holder.getLayoutPosition());
+                notifyItemRemoved(holder.getLayoutPosition());
+                return false;
+            }
+        });
 
         holder.clickview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int position = holder.getAdapterPosition();
                 ChatList chatList = mchatlist.get(position);
+                //通知
                 if (chatList.getType() == 3) {
                     Intent intent = new Intent(v.getContext(), Notice.class);
                     v.getContext().startActivity(intent);
                 }
+                //私聊
                 if (chatList.getType() == 1) {
                     Intent intent = new Intent(v.getContext(), MessageListActivity.class);
                     DefaultUser defaultUser = new DefaultUser(chatList.getFromwho(), chatList.getNikname()
                             , "R.drawable.aurora_menuitem_emoji", 1);
                     intent.putExtra("user1", defaultUser);
+                    intent.putExtra("message_type","2");
+                    v.getContext().startActivity(intent);
+                }
+                //群聊
+                if (chatList.getType() == 2) {
+                    Intent intent = new Intent(v.getContext(), MessageListActivity.class);
+                    DefaultUser defaultUser = new DefaultUser(chatList.getFromwho(), chatList.getNikname()
+                            , "R.drawable.aurora_menuitem_emoji", 1);
+                    intent.putExtra("user1", defaultUser);
+                    intent.putExtra("message_type","3");
                     v.getContext().startActivity(intent);
                 }
             }
@@ -120,9 +144,14 @@ public class ChatListAdapterr extends RecyclerView.Adapter<ChatListAdapterr.View
         Integer weizhi = map.get(key);
         Log.e("chatlistAdapterr", key);
         Log.e("chatlistAdapterr", String.valueOf(weizhi));
-        if(!mchatlist.get(weizhi).getMessagenum().equals("0"))
-        mchatlist.get(weizhi).setMessagenum("0");
-        notifyItemChanged(weizhi);
+        if(weizhi!= null) {
+           if(!mchatlist.get(weizhi).getMessagenum().equals("0"))
+            mchatlist.get(weizhi).setMessagenum("0");
+            notifyItemChanged(weizhi);
+        }
+
     }
+
+
 
 }

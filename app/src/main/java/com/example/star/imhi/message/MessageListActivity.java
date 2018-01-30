@@ -36,26 +36,34 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.Target;
 import com.example.star.imhi.DAO.pojo.DefaultUser;
+import com.example.star.imhi.DAO.pojo.HistoryMessage;
 import com.example.star.imhi.DAO.pojo.MyMessage;
+import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.Chating;
 import com.example.star.imhi.Utils.ThisTime;
 import com.example.star.imhi.database.MyDatabaseHelper;
 import com.example.star.imhi.mina.SessionManager;
 import com.example.star.imhi.view.ChatView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLDataException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import cn.jiguang.imui.chatinput.ChatInputView;
 import cn.jiguang.imui.chatinput.listener.OnCameraCallbackListener;
@@ -70,6 +78,9 @@ import cn.jiguang.imui.messages.MsgListAdapter;
 import cn.jiguang.imui.messages.ViewHolderController;
 import cn.jiguang.imui.messages.ptr.PtrHandler;
 import cn.jiguang.imui.messages.ptr.PullToRefreshLayout;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -96,11 +107,13 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
     private DefaultUser user2;
     private static int pos = 0;// just for test
     private MyDatabaseHelper dbHelper;
+    String message_type;
     Chating chating;
+    Map<String, DefaultUser> map = new HashMap<>();
 
     //    public void run() {
 //        SaveTheMessage(userfromid, toid, texttype, messageid,
-//                messagetype,  textcontent, date)
+//                messagketype,  textcontent, date)
 //    }
     String userfromid, toid, texttype, messageid, messagetype, textcontent, strdate;
 
@@ -111,9 +124,29 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         dbHelper = new MyDatabaseHelper(this, "FriendsStore.db", null, 1);
 //user2是别人
         user2 = (DefaultUser) getIntent().getSerializableExtra("user1");
-
+        // message_type = "2";
+        message_type = getIntent().getStringExtra("message_type");
+        if (message_type.equals("3")) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    GroupUserInfo();
+                }
+            });
+            thread.start();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         chating = new Chating();
-        chating.setChating(Integer.parseInt(user2.getId()));
+        if (message_type.equals("3")) {
+            String key = user2.getId()+ "|2";
+            Log.e("chating key:", key);
+            chating.setChating(key);
+        } else
+            chating.setChating(user2.getId());
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(MessageListActivity.this);
 
         //user2 = (DefaultUser) getIntent().getSerializableExtra("user2");
@@ -126,7 +159,10 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         try {
             jsonObject.put("from", userId);
             jsonObject.put("to", user2.getId());
-            jsonObject.put("texttype", "7");
+            if (message_type.equals("2"))
+                jsonObject.put("texttype", "7");
+            else if (message_type.equals("3"))
+                jsonObject.put("texttype", "8");
             //  jsonObject.put("textcontent",);
             jsonObject1.put("message_type", "13");
             jsonObject1.put("textcontent", jsonObject);
@@ -153,7 +189,6 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
         //yuyisummer
         intentFilter.addAction("com.bs.showMsg");
-
         registerReceiver(mReceiver, intentFilter);
         mChatView.setOnTouchListener(this);
         mChatView.setMenuClickListener(new OnMenuClickListener() { //菜单按键接口
@@ -182,7 +217,8 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
                 userfromid = user1.getId();
                 toid = user2.getId();
                 texttype = "1";
-                messagetype = "2";
+                messagetype = message_type;
+                // messagetype = "2";
                 textcontent = input.toString();
                 strdate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(date);
                 try {
@@ -453,24 +489,29 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.e("messagelist", "界面接收到信息");
             if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                 if (intent.hasExtra("state")) {
                     int state = intent.getIntExtra("state", 0);
                     mAdapter.setAudioPlayByEarPhone(state);
                 }
             } else if (intent.getAction().equals("com.bs.showMsg")) {
-
-                //public void updateOrAddMessage(String oldId, MESSAGE newMessage, boolean scrollToBottom)
-//                MyMessage message = new MyMessage(input.toString(), IMessage.MessageType.SEND_TEXT.ordinal()); //消息类
-//                message.setUserInfo( user1);
-//                message.setTimeString(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()));
-
                 try {
 
                     JSONObject jsonObject = new JSONObject(intent.getStringExtra("textcontent"));
                     Log.e("messagelistac", jsonObject.toString());
                     MyMessage myMessage = new MyMessage(jsonObject.getString("textContent"), IMessage.MessageType.RECEIVE_TEXT.ordinal());
-                    myMessage.setUserInfo(user2);
+                    if (message_type.equals("2"))
+                        myMessage.setUserInfo(user2);
+                    else {
+                        String userid = jsonObject.getString("userFromId");
+                        Log.e("message user_id", userid);
+                        if(userid.equals(user1.getId())) {
+                            return;
+                        }
+                        myMessage.setUserInfo(map.get(userid));
+                        Log.e("message name", map.get(userid).getDisplayName());
+                    }
                     mAdapter.updateOrAddMessage(jsonObject.getString("messageId"), myMessage, true);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -503,16 +544,26 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
     private List<MyMessage> getMessages() {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor cursor;
+        Cursor cursor = null;
         String from = user1.getId();
         String to = user2.getId();
-        cursor = db.query("history_message", null, "(user_from_id=? and to_id=?) or (user_from_id=? and to_id=?) and message_type=? ", new String[]{to, from, from, to, "2"}, null, null, null);
+        String receivte = "0";
+        System.out.println("message_type:" + message_type);
+        if (message_type.equals("2")) {
+            receivte = "2";
+            cursor = db.query("history_message",
+                    null, "(user_from_id=? and to_id=?) or (user_from_id=? and to_id=?) and message_type=? ",
+                    new String[]{to, from, from, to, receivte}, null, null, null);
+        } else if (message_type.equals("3")) {
+            receivte = "3";
+            cursor = db.query("history_message",
+                    null, "to_id=? and message_type=? ",
+                    new String[]{to, receivte}, null, null, null);
+
+        }
+        System.out.println("message_list测试:" + receivte);
 
         cursor.moveToFirst();
-        Log.e("message 427", cursor.getString(0));
-        Log.e("message 427", cursor.getString(1));
-//        Log.e("message 427",cursor.getString(2));
-//        Log.e("message 427",cursor.getString(cursor.getCount()));
 
         List<MyMessage> list = new ArrayList<>();
 
@@ -523,14 +574,28 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
                 MyMessage message;
                 String user_from_id = cursor.getString(cursor.getColumnIndex("user_from_id"));
                 String textcontent = cursor.getString(cursor.getColumnIndex("text_content"));
-                if (user_from_id.equals(to)) {
+                if (!user_from_id.equals(user1.getId())) {
                     message = new MyMessage(textcontent, IMessage.MessageType.RECEIVE_TEXT.ordinal());
-                    message.setUserInfo(user2);
+                    if (message_type.equals("2"))
+                        message.setUserInfo(user2);
+                    else {
+                        System.out.println("这是群聊，来自于" + user_from_id);
+                        message.setUserInfo(map.get(user_from_id));
+                        System.out.println(map.get(user_from_id).getDisplayName());
+                    }
                 } else {
                     message = new MyMessage(textcontent, IMessage.MessageType.SEND_TEXT.ordinal());
                     message.setUserInfo(user1);
                 }
-                message.setTimeString(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()));
+
+                // message.setTimeString(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()));
+
+                String date = cursor.getString(cursor.getColumnIndex("date"));
+                Log.e("message:", date);
+                String[] infor = date.split("\\s+");
+                message.setTimeString(infor[1]);
+                //  message.setTimeString(date.toString());
+
                 list.add(message);
 
             } while (cursor.moveToNext());
@@ -686,7 +751,7 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
                         message = new MyMessage(messages[i], IMessage.MessageType.SEND_TEXT.ordinal());
                         message.setUserInfo(user1);
                     }
-                    message.setTimeString(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date()));
+                    message.setTimeString(new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date()));
                     list.add(message);
                     if (i - pos == 4) {
                         pos = i;
@@ -755,7 +820,11 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         try {
             // jsonObject.put("message_type","25");
             jsonObject.put("fromwho", user2.getId());
-            jsonObject.put("type", user2.getType());
+            if (message_type.equals("2"))
+                jsonObject.put("type", "1");
+            else
+                jsonObject.put("type", "2");
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -767,7 +836,8 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
         super.onDestroy();
         unregisterReceiver(mReceiver);
         mSensorManager.unregisterListener(this);
-        chating.setChating(0);
+        chating.setChating("0");
+        map.clear();
         Log.e("onDestroy", "已经调用");
 
     }
@@ -801,7 +871,7 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
     }
 
     void SaveTheMessage(String userfromid, String toid, String texttype,
-                       String messagetype, String textcontent,
+                        String messagetype, String textcontent,
                         String date) {
         ContentValues values = new ContentValues();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -820,4 +890,37 @@ public class MessageListActivity extends Activity implements View.OnTouchListene
             Log.e("history_message", "success " + retval);
     }
 
+    public void GroupUserInfo() {
+        OkHttpClient client = new OkHttpClient();
+        Request request;
+        request = new Request.Builder().url(getString(R.string.postUrl) + "api/groupuser/getUsers/" + user2.getId()).build();
+        try {
+            Response response = client.newCall(request).execute();
+            String responseData = response.body().string();
+            JSONObject json = new JSONObject(responseData);
+            String user_str = json.getString("users");
+            System.out.println(user_str);
+            Gson gson = new Gson();
+            Log.e("start responseData", responseData);
+
+            List<User> list = gson.fromJson(user_str, new TypeToken<List<User>>() {
+            }.getType());
+            User user;
+            DefaultUser defaultUser;
+            for (int i = 0; i < list.size(); i++) {
+                //public DefaultUser(String id, String displayName, String avatar, int type)
+                user = list.get(i);
+                defaultUser = new DefaultUser(String.valueOf(user.getUserId()), user.getNikname(),"R.drawable.aurora_menuitem_emoji"
+                       , 1);
+                System.out.println("");
+                map.put(String.valueOf(user.getUserId()), defaultUser);
+                Log.e("messagelist", String.valueOf(list.get(i).getUserId()));
+                Log.e("meassagelist", String.valueOf(list.get(i).getNikname()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

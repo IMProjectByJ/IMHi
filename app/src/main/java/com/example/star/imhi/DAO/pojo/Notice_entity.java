@@ -18,7 +18,7 @@ public class Notice_entity {
         this.whoid = whoid;
     }
 
-    private String addfriend;
+    private String addfriend="请求添加您为好友";
     private Button agree;
     private Button refuse;
 
@@ -64,6 +64,13 @@ public class Notice_entity {
         this.who=who;
         this.whoid = whoid;
 //        this.addfriend =addfriend;
+//        this.agree=button1;
+//        this.refuse = button2;
+    }
+    public Notice_entity(String who,String whoid,String addfriend){
+        this.who=who;
+        this.whoid = whoid;
+        this.addfriend =addfriend;
 //        this.agree=button1;
 //        this.refuse = button2;
     }

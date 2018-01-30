@@ -28,10 +28,10 @@ public class MyDatabaseHelper  extends SQLiteOpenHelper {
             + "text_content text,"
             + "date datetime)";
     public static final String CREATE_GroupChat = "create table GroupChat ("
-            + "group_id text  primary key,"
-            + "user_id text"
-            + "create_date text"
-            + "group_name text)";
+            + "groupId text  primary key,"
+            + "userId text,"
+            + "createDate text,"
+            + "groupName text)";
     public static final  String  CREATE_GroupUser = "create table GroupUser ("
             + "group_id text,"
             + "member_id text,"

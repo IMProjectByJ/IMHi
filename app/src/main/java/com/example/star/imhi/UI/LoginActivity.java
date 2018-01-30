@@ -39,6 +39,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.star.imhi.DAO.pojo.GroupChat;
+import com.example.star.imhi.DAO.pojo.GroupUser;
+import com.example.star.imhi.DAO.pojo.HistoryMessage;
 import com.example.star.imhi.DAO.pojo.User;
 import com.example.star.imhi.R;
 import com.example.star.imhi.Utils.AccountValidatorUtil;
@@ -49,15 +52,20 @@ import com.example.star.imhi.database.MyDatabaseHelper;
 import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.acl.Group;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +123,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private ImageView list_down;
     private boolean isDown = false;
     private ImageView delClose;
-
+     User finalUser;
     //yuyisummer private  MyDatabaseHelper dbHelper;
     private MyDatabaseHelper dbHelper;
 
@@ -417,7 +425,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                     }
 
-                    final User finalUser = user;
+                    finalUser = user;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -428,7 +436,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                                 //yuyiummser 2018.1.15
                                 setPassword();
-
+//拉取好友列表
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -443,13 +451,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                             JSONObject json = new JSONObject(responseData);
                                             String user_str = json.getString("retval");
                                             System.out.println(user_str);
-
-//                                            Protocol protocol = gson.fromJson(message.toString(), Protocol.class);
-//                                            Map<String,Integer> content = (Map<String, Integer>) protocol.getTextcontent();
-//                                              yuyisummer 测试直接转换json->list
-                                            //Gson gson = new Gson();
-                                            // List<User> list =  new ArrayList<User>();
-                                            //JSONArray jsonArray = JSONArray.
 
                                             SQLiteDatabase db = dbHelper.getWritableDatabase();
                                             JSONArray arr = new JSONArray(user_str);
@@ -491,12 +492,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                             String jsonStr = gson.toJson(map);
                                             edit.putString("friendlist", jsonStr);
                                             edit.commit();
+                                            map.clear();
 
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
+                                    }
+                                }).start();
+
+                                //拉取群列表
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.e("508 ：","开始拉取群列表");
+                                        GroupListLord();
                                     }
                                 }).start();
 
@@ -723,6 +734,76 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             int update = db.update("Friends", values, "user_id=?", new String[]{String.valueOf(userid)});
             Log.e("LoginAcitivity", "ceshi " + update);
+        }
+    }
+    //yuyisummer 1.27 grouplist
+    public void GroupListLord(){
+            Map<String,String> grouplist = new HashMap<>();
+            OkHttpClient client = new OkHttpClient();
+            String user_id = String.valueOf(finalUser.getUserId());
+            Log.e("finaluser", user_id);
+            Request request;
+            request = new Request.Builder().url(getString(R.string.postUrl) + "api/groupuser/findGroupList/" + user_id).get().build();
+
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+            String responseData = response.body().string();
+            Gson gson = new Gson();
+            Log.e("start 群列表具体内容", responseData);
+
+            List<GroupChat> list = gson.fromJson(responseData, new TypeToken<List<GroupChat>>() {
+            }.getType());
+
+
+
+
+            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+            Cursor cursor1;
+            Log.e("grouplist size:", String.valueOf(list.size()));
+            for (int i = 0; i < list.size(); i++) {
+
+//                public static final String CREATE_GroupChat = "create table GroupChat ("
+//                        + "group_id text  primary key,"
+//                        + "user_id text"
+//                        + "create_date text"
+//                        + "group_name text)";
+
+                GroupChat groupChat = list.get(i);
+                ContentValues values = new ContentValues();
+                values.put("groupId", groupChat.getGroupId());
+                values.put("userId", groupChat.getUserId());
+                values.put("groupName", groupChat.getGroupName());
+                grouplist.put(groupChat.getGroupId(),groupChat.getGroupName());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(Long.valueOf(groupChat.getCreateDate()));
+                String date = sf.format(calendar.getTime());
+                // values.put("date", String.valueOf(historyMessage.getDate()));
+                Log.e("grouplist date:",date);
+                values.put("createDate",date);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                cursor1 = db.query("GroupChat", null,
+                        "groupId=?",
+                        new String[]{groupChat.getGroupId()}, null, null, null);
+                if (cursor1.getCount() == 0) {
+                    long retval = db.insert("GroupChat", null, values);
+
+                    if (retval == -1)
+                        Log.e("GroupChat", "failed");
+                    else
+                        Log.e("GroupChat", "success " + retval);
+                }
+            }
+
+            SharedPreferences share = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);// 私有方式获取
+            SharedPreferences.Editor edit = share.edit();
+            String jsonStr = gson.toJson(grouplist);
+            edit.putString("grouplist", jsonStr);
+            edit.commit();
+            grouplist.clear();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

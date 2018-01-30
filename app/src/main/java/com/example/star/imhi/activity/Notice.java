@@ -55,7 +55,6 @@ public class Notice extends AppCompatActivity implements View.OnClickListener {
         Cursor cursor;
 
 
-
         cursor = db.query("history_message", new String[]{"*"},
                 "to_id=?  and message_type=? ",
                 new String[]{user_id,"8"}, null, null, null);
@@ -69,6 +68,36 @@ public class Notice extends AppCompatActivity implements View.OnClickListener {
                 noticeList.add(user1);
             }while (cursor .moveToNext());
         }
+
+        //去群详细信息表里把属于自己群的申请通知也加载进来
+        cursor = db.query("GroupChat", new String[]{"*"},
+                "userId=?",
+                new String[]{user_id}, null, null, null);
+
+        if (cursor!=null && cursor.moveToFirst() ) {
+            do{
+                String groupId = cursor.getString(cursor.getColumnIndex("groupId"));
+                Cursor cursor1;
+                cursor1 =  db.query("history_message", new String[]{"*"},
+                        "to_id=?  and message_type=? ",
+                        new String[]{groupId,"11"}, null, null, null);
+
+                if (cursor1!=null && cursor1.moveToFirst() ) {
+                    do{
+                        String fromid = cursor1.getString(cursor1.getColumnIndex("user_from_id"));
+                        String fromwho = FindNikname(fromid);
+                        String groupid = cursor1.getString(cursor1.getColumnIndex("to_id"));
+                        Notice_entity user1 = new Notice_entity(fromwho,fromid,"请求加群: "+groupid);
+                        noticeList.add(user1);
+                    }while (cursor1 .moveToNext());
+                }
+
+
+//                Notice_entity user1 = new Notice_entity(fromwho,fromid);
+//                noticeList.add(user1);
+            }while (cursor .moveToNext());
+        }
+
 
 
         // Intent intent=getIntent();

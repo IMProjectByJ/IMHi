@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.star.imhi.DAO.pojo.Friends;
 import com.example.star.imhi.DAO.pojo.User;
@@ -56,6 +58,7 @@ public class home1Fragment extends android.support.v4.app.Fragment {
     private User user;
     private ImageView headImg;
     private Bitmap bitmap;
+    private SwipeRefreshLayout swiperefresh;
     public static final MediaType JSON=MediaType.parse("application/json; charset=utf-8");
 /*
     public home1Fragment(){}
@@ -66,7 +69,9 @@ public class home1Fragment extends android.support.v4.app.Fragment {
         this.friendlist = friendlist;
     }
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    @SuppressLint("ResourceAsColor")
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         //yuyisummer
 
         dbHelper = new MyDatabaseHelper(getActivity(),"FriendsStore.db",null,1);
@@ -105,6 +110,15 @@ public class home1Fragment extends android.support.v4.app.Fragment {
         adapter = new FriendsListAdapter(friends_List);
         recyclerView.setAdapter(adapter);
         headImg = (ImageView)view.findViewById(R.id.touxiang);
+        swiperefresh = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
+        swiperefresh.setColorSchemeColors(R.color.colorPrimary);
+        swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+            }
+        });
+
 
         //接收广播---同意了好友请求
         LocalBroadcastManager localBroadcastManager=LocalBroadcastManager.getInstance(view.getContext());
@@ -113,6 +127,11 @@ public class home1Fragment extends android.support.v4.app.Fragment {
         LocalReceiver localReceiver =new LocalReceiver();
         localBroadcastManager.registerReceiver(localReceiver,intentFilter);
         return view;
+    }
+    private  void refresh(){
+        Toast.makeText(getContext(), "刷新", Toast.LENGTH_SHORT).show();
+        swiperefresh.setRefreshing(false);
+
     }
     class LocalReceiver extends BroadcastReceiver {
 

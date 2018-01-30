@@ -5,40 +5,49 @@ package com.example.star.imhi.DAO.pojo;
  */
 
 public class GroupChat {
-    private  String group_id;
-    private  String user_id;
-    private  String  group_name;
-    private  String  create_date;
+    private  String groupId;
+    private  String userId;
+    private  String  groupName;
+    private  String  createDate;
+    private  String headUrl;
 
-    public String getGroup_id() {
-        return group_id;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setGroup_id(String group_id) {
-        this.group_id = group_id;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
-    public String getUser_id() {
-        return user_id;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getGroup_name() {
-        return group_name;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setGroup_name(String group_name) {
-        this.group_name = group_name;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
-    public String getCreate_date() {
-        return create_date;
+    public String getCreateDate() {
+        return createDate;
     }
 
-    public void setCreate_date(String create_date) {
-        this.create_date = create_date;
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getHeadUrl() {
+        return headUrl;
+    }
+
+    public void setHeadUrl(String headUrl) {
+        this.headUrl = headUrl;
     }
 }
